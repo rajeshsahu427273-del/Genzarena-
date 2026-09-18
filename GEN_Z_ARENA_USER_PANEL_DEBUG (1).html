@@ -1,0 +1,2853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>GEN Z ARENA</title>
+
+<!-- Firebase COMPAT SDK: intentionally used so this remains a normal copy/paste HTML file. -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
+
+<!-- ZapUPI payment widget (used only to OPEN the payment screen; coins are
+     never added from here — see WALLET_API_BASE backend for the real credit) -->
+<script src="https://zapupi.com/single-html-web-kit.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;background:#061a33;font-family:Arial,sans-serif;overflow-x:hidden}
+button,input,select,textarea{font:inherit}
+button{border:0;cursor:pointer}
+#app{min-height:100vh;padding-bottom:90px}
+.topbar{height:76px;background:linear-gradient(180deg,#07558d,#073b68);border-radius:0 0 25px 25px;display:flex;align-items:center;justify-content:space-between;padding:10px 15px;color:#fff;position:sticky;top:0;z-index:100;box-shadow:0 3px 12px #0006}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.logo{width:52px;height:52px;border-radius:50%;object-fit:cover;background:#fff}
+.brand-name{font-size:22px;font-weight:900;white-space:nowrap}
+.header-right{display:flex;align-items:center;gap:8px}
+.coin-box{height:38px;min-width:65px;border-radius:20px;border:2px solid white;background:#06355a;color:#fff;padding:0 12px}
+.notify{width:42px;height:42px;border-radius:50%;background:#fff;color:#16469b;font-size:21px}
+.page{padding:14px 12px}
+.notice{height:67px;display:flex;align-items:center;overflow:hidden;background:#293c56;border-radius:7px;color:#fff;margin-bottom:15px}
+.notice-icon{min-width:70px;height:100%;display:flex;align-items:center;justify-content:center;background:#53647c;font-size:28px}
+.notice-text{padding:0 13px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.banner{height:285px;border-radius:17px;overflow:hidden;border:2px solid #3bd9ed;margin-bottom:20px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;background:#0b3156;position:relative}
+.banner.has-image{background-size:cover;background-position:center}
+.banner.has-image:before{content:"";position:absolute;inset:0;background:#0008}
+.banner-content{position:relative;z-index:2}
+.banner-title{font-size:32px;font-weight:900;font-style:italic;text-shadow:3px 4px 5px #000}
+.banner-sub{margin-top:12px;font-size:18px}
+.banner-btn{margin-top:23px;padding:11px 24px;border-radius:18px;color:#fff;background:#681ee5}
+.section-title,.games-title{color:#fff;text-align:center;font-size:25px;font-weight:800;margin:12px 0 17px}
+.match-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:30px}
+.match-card{min-height:120px;background:#fff;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;color:#222}
+.match-icon{font-size:38px;margin-bottom:10px}
+.green{color:#1ca66a}.cyan{color:#1d9fe5}.success{color:#22a45b}
+.category-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding-bottom:25px}
+.category-card{height:145px;border-radius:13px;overflow:hidden;position:relative;background:#102b49;border:1px solid #254766;color:#fff}
+.category-card img{width:100%;height:100%;object-fit:cover;display:block}
+.category-empty{height:100%;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;font-size:17px;font-weight:900}
+.category-overlay{position:absolute;left:0;right:0;bottom:0;padding:30px 10px 10px;background:linear-gradient(transparent,#000d);display:flex;justify-content:space-between;align-items:end;font-weight:900}
+.online{font-size:11px;font-weight:700}.dot{display:inline-block;width:7px;height:7px;background:#25e56f;border-radius:50%;margin-right:4px}
+.sub-bubble{position:fixed;right:14px;bottom:86px;background:#7a1cff;color:#fff;border-radius:30px;padding:10px 14px;z-index:90;font-weight:900;box-shadow:0 5px 20px #0007}
+.sub-top-bubble{height:34px;min-width:58px;padding:0 10px;border:0;border-radius:18px;background:#7a1cff;color:#fff;font-size:11px;font-weight:900;box-shadow:0 3px 10px #0005;white-space:nowrap}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;height:76px;background:#092443;border-top:1px solid #23415f;display:grid;grid-template-columns:repeat(4,1fr);z-index:110;box-shadow:0 -3px 12px #0005}
+.nav-item{background:transparent;color:#b9c8d9;font-size:12px;font-weight:700}
+.nav-item div{font-size:24px;margin-bottom:2px}
+.inner-sub-bubble{margin-left:auto}.inner-header{height:70px;background:#073b68;color:#fff;display:flex;align-items:center;gap:14px;padding:0 15px;position:sticky;top:0;z-index:100}
+.back{width:42px;height:42px;border-radius:50%;background:#fff;color:#073b68;font-size:30px;line-height:1}
+.inner-title{font-size:20px;font-weight:900}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:14px 12px;background:#061a33}
+.tab{padding:12px 4px;border-radius:9px;background:#193552;color:#fff;font-weight:800}
+.tab.active{background:#1d9fe5}
+.tournament-list{padding:0 12px 25px}
+.tournament-card{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:15px;color:#20242a}
+.tournament-img{height:190px;background:#102b49}
+.tournament-img img{width:100%;height:100%;object-fit:cover;display:block}
+.tournament-img.no-image{display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:900}
+.tournament-body{padding:14px}
+.t-name{font-size:19px;font-weight:900}.t-id{font-size:11px;color:#6b7280;margin-top:3px}
+.t-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:13px}
+.meta-box{background:#f2f5f8;border-radius:9px;padding:9px}
+.meta-box b{display:block;margin-top:3px}
+.progress{height:9px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:12px 0 6px}
+.progress span{display:block;height:100%;background:#1d9fe5}
+.t-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.spots{font-size:12px;color:#555}.join-btn{background:#1d9fe5;color:#fff;border-radius:9px;padding:10px 16px;font-weight:900}
+.join-btn.view{background:#53647c}
+.details-page,.position-page,.selected-page,.game-details-page,.leader-page,.subscription-page,.simple-page{min-height:calc(100vh - 70px);padding:16px 12px 100px;background:#061a33;color:#fff}
+.details-hero{background:#102b49;border-radius:14px;overflow:hidden}.details-hero img{width:100%;height:220px;object-fit:cover;display:block}.details-hero.no-image{height:180px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900}
+.details-body{background:#fff;color:#222;padding:15px;border-radius:0 0 14px 14px}
+.rule-box{background:#f3f6f9;border-radius:10px;padding:13px;margin-top:12px;line-height:1.7;font-size:14px}
+.primary-join{width:100%;margin-top:15px;padding:14px;background:#1d9fe5;color:#fff;border-radius:10px;font-weight:900}
+.joining-list{margin-top:15px;background:#fff;color:#222;border-radius:12px;padding:13px}
+.joining-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:13px}
+.joining-row:last-child{border-bottom:0}
+.position-heading{text-align:center;font-size:22px;font-weight:900;margin:10px 0 16px}
+.position-list{background:#fff;color:#222;border-radius:12px;overflow:hidden}
+.position-header,.position-item{display:grid;grid-template-columns:1fr 50px;padding:13px 15px;border-bottom:1px solid #eee}
+.position-header{font-weight:900;background:#eef2f5}.position-item{color:#111}.position-item span{color:#111!important}.position-item.disabled{color:#aaa;background:#f7f7f7}.position-action{padding-top:15px}.join-now{width:100%;height:55px;border-radius:9px;background:#1d9fe5;color:#fff;font-weight:900;font-size:18px}
+.balance-area{display:grid;grid-template-columns:35% 65%;align-items:center;margin-bottom:20px}.wallet-big{font-size:62px;text-align:center}.balance-lines{font-size:14px;line-height:2}
+.selected-box,.player-form{background:#202b3d;border-radius:10px;padding:18px}.selected-title,.player-form-title{background:#279fdf;padding:12px;text-align:center;font-size:19px;font-weight:900;margin-bottom:15px}
+.selected-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.selected-grid div{background:#29384b;padding:12px;border-radius:8px;min-height:80px}.selected-grid b{display:block;color:#aebdcc;font-size:12px}.selected-grid strong{display:block;margin-top:8px}
+.add-info{background:#57cbb3;color:#fff;padding:8px 10px;border-radius:7px;margin-top:7px}
+.two-buttons,.save-buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.cancel-btn,.confirm-btn,.save-btn,.form-cancel{height:55px;border-radius:9px;color:#fff;font-weight:900}.cancel-btn,.form-cancel{background:#ef7479}.confirm-btn,.save-btn{background:#57cbb3}
+.note{margin:35px auto 0;max-width:370px;font-size:14px;line-height:1.5;color:#c9d4df}
+.player-form input{width:100%;background:transparent;border:0;border-bottom:1px solid #c8d0da;padding:14px 0;color:#fff;outline:0;margin-bottom:18px}.player-form input::placeholder{color:#fff}
+.form-note{font-size:14px;line-height:1.4;margin-bottom:18px;color:#d4dbe3}
+.leader-card{background:#fff;border-radius:14px;margin-bottom:11px;padding:15px;display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:10px;color:#222;border:2px solid transparent}.leader-card.me{background:#0b3d68;color:#fff;border-color:#28c8e8;box-shadow:0 0 0 2px #28c8e833,0 5px 16px #0005}.leader-card.me .coins{color:#fff}.rank{font-size:21px;font-weight:900;text-align:center}.player-name{font-size:18px;font-weight:800}.leader-card.me .player-name{color:#fff}.player-name.subscribed{color:#d79a00;text-shadow:0 0 7px #ffd84d}.leader-card.me .player-name.subscribed{color:#ffd84d}.verify{display:inline-flex;width:19px;height:19px;margin-left:5px;border-radius:50%;align-items:center;justify-content:center;background:#1688e8;color:#fff;font-size:12px}.sub-mini{display:inline-flex;align-items:center;vertical-align:middle;margin-left:6px;padding:3px 7px;border-radius:20px;background:#ffd02e;color:#392900;font-size:9px;font-weight:900;letter-spacing:.3px;text-shadow:none}.you-mini{display:inline-flex;align-items:center;margin-left:6px;padding:3px 7px;border-radius:20px;background:#22d3ee;color:#052338;font-size:9px;font-weight:900;letter-spacing:.3px}.coins{font-weight:700;color:#444}
+.plan{background:#fff;color:#222;border-radius:15px;padding:20px}.plan h3{color:#d39a00}.plan button{width:100%;margin-top:15px;padding:13px;border-radius:9px;background:#7a1cff;color:#fff;font-weight:900}
+.simple-card{background:#fff;color:#222;border-radius:12px;padding:16px;margin-bottom:10px;text-align:left;width:100%}
+.loading{color:#fff;text-align:center;padding:70px 20px;font-size:17px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:55vh}.gza-loading-spinner{width:42px;height:42px;border:4px solid #ffffff2b;border-top-color:#9b5cff;border-right-color:#35b8ff;border-radius:50%;animation:gzaLoaderSpin .75s linear infinite;box-shadow:0 0 18px #7b2cff55}@keyframes gzaLoaderSpin{to{transform:rotate(360deg)}}.error-box{background:#6e2630;color:#fff;padding:14px;border-radius:10px;margin:15px 12px;line-height:1.5}
+.status-pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#e9f4ff;color:#0d75bd;font-size:11px;font-weight:800}
+.result-row{background:#fff;color:#222;border-radius:12px;padding:14px;margin-bottom:10px}
+.muted{color:#687385;font-size:12px}
+@media(max-width:600px){.brand-name{font-size:18px}.logo{width:48px;height:48px}.banner{height:230px}.tournament-img{height:170px}.selected-grid{grid-template-columns:1fr}.category-grid{gap:9px}}
+@media(min-width:800px){.bottom-nav{left:0;right:0;top:auto;bottom:0;width:100%;height:76px;border:0;border-radius:0;display:grid;grid-template-columns:repeat(4,1fr);padding:0}.sub-bubble{right:30px;bottom:90px}.nav-item{padding:10px 0}.page,.tournament-list,.details-page,.position-page,.selected-page,.game-details-page,.leader-page,.subscription-page,.simple-page{max-width:1000px;margin:auto}.topbar{padding-left:calc((100% - 1000px)/2 + 15px);padding-right:calc((100% - 1000px)/2 + 15px)}}
+
+/* ===== HOME → JOIN SCREENSHOT-STYLE UI ===== */
+body{background:#071b34}
+.gza-home-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:10px 11px 25px}
+.gza-home-card{height:168px;border-radius:9px;overflow:hidden;position:relative;background:#153657;border:1px solid #2ec8e7;box-shadow:0 2px 7px #0007;text-align:left}
+.gza-home-card img{width:100%;height:100%;object-fit:cover;display:block}
+.gza-home-card .fallback{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:18px;font-weight:900;color:#fff;padding:12px}
+.gza-home-card:after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(transparent,#000b)}
+.gza-home-info{position:absolute;left:8px;right:7px;bottom:7px;z-index:2;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:14px;font-weight:900}
+.gza-home-count{font-size:12px;color:#29e46d;white-space:nowrap}
+.gza-home-count:before{content:"";display:inline-block;width:8px;height:8px;background:#19d969;border-radius:50%;margin-right:4px}
+.gza-category-header{height:70px;background:linear-gradient(180deg,#07558d,#073b68);color:#fff;display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:100;border-radius:0 0 20px 20px}
+.gza-category-header .back{position:absolute;left:14px;background:transparent;color:#fff;width:42px}
+.gza-category-header h1{font-size:21px}
+.gza-tabs2{height:59px;background:#071b34;display:grid;grid-template-columns:repeat(3,1fr);align-items:end;padding:0 28px}
+.gza-tab2{height:51px;background:transparent;color:#fff;font-size:17px;position:relative}
+.gza-tab2.active:after{content:"";position:absolute;bottom:0;left:20%;right:20%;height:2px;background:#fff}
+.gza-contest-list{padding:31px 10px 35px;background:linear-gradient(135deg,#071b34,#10284b);min-height:calc(100vh - 129px)}
+.gza-contest{margin:0 0 38px;background:transparent}
+.gza-contest-image{width:100%;height:300px;margin:0 auto;border-radius:0;overflow:hidden;background:#17385a}
+.gza-contest-image img{width:100%;height:100%;object-fit:cover;display:block}
+.gza-contest-image.noimg{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900}
+.gza-contest-info{background:#fff;color:#222;margin-top:0;padding:25px 16px 20px;box-shadow:0 2px 5px #0004}
+.gza-contest-title{font-size:18px;font-weight:900;text-align:center;color:#34404d}
+.gza-contest-id{font-size:13px;text-align:left;color:#333;margin-top:4px}
+.gza-contest-time{text-align:left;margin-top:6px;color:#444}
+.gza-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 6px;margin-top:24px;text-align:center}
+.gza-info-grid div{font-size:12px;color:#5d6670}
+.gza-info-grid b{display:block;font-size:21px;color:#222;margin-top:5px}
+.gza-progress{height:7px;background:#606b75;border-radius:8px;margin:25px 28px 7px;overflow:hidden}
+.gza-progress span{display:block;height:100%;background:#26a85e}
+.gza-contest-bottom{display:flex;align-items:center;justify-content:space-between;padding:0 28px;color:#239653;font-weight:800}
+.gza-join-small{background:#5b9cec;color:#fff;border-radius:8px;padding:10px 24px;font-size:18px}
+.gza-join-small.joined{background:#8b98a8;color:#eef2f6;cursor:not-allowed}
+.gza-details-bg{background:#f5f5f5;color:#222;min-height:calc(100vh - 70px);padding-bottom:25px}
+.gza-details-header{height:70px;background:linear-gradient(180deg,#07558d,#073b68);color:#fff;display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:100;border-radius:0 0 20px 20px}
+.gza-details-header .back{position:absolute;left:12px;background:transparent;color:#fff}
+.gza-details-header h1{font-size:20px}
+.gza-details-hero{margin:11px;border-radius:20px;overflow:hidden;height:340px;background:#163657}
+.gza-details-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.gza-time-left{background:#fff;border-radius:5px;margin:28px 20px 17px;padding:15px;text-align:center;font-size:18px}
+.gza-details-title{color:#2c9dcb;font-size:18px;font-weight:900;padding:0 20px;line-height:1.45}
+.gza-chip-grid{display:flex;flex-wrap:wrap;gap:10px;padding:18px 20px}
+.gza-chip{background:#fff;border:1px solid #aaa;padding:13px 12px;min-width:120px;text-align:center;font-size:15px}
+.gza-chip b{font-weight:900}
+.gza-section-label{color:#2c9dcb;font-weight:900;font-size:18px;padding:12px 20px}
+.gza-prize-box{background:#fff;border:1px solid #ddd;margin:0 20px;padding:17px;font-size:17px;font-weight:900}
+.gza-rules-box{background:#e9e7fb;margin:0 20px;padding:0 12px 18px;line-height:1.55}
+.gza-rules-box h2{text-align:center;background:#dddafb;padding:14px;margin:0 -12px 15px;border-bottom:3px solid #5b6070}
+.gza-rules-box ul{padding-left:24px}.gza-rules-box li{margin:13px 0;font-weight:600}
+.gza-fixed-join{position:sticky;bottom:0;margin:18px 20px 0;width:calc(100% - 40px);height:54px;background:#83e600;color:#111;border-radius:9px;font-size:20px;z-index:50}
+.gza-fixed-join.joined{background:#3a4a5e;color:#9fb0c4;box-shadow:none;cursor:not-allowed}
+.gza-alljoin-header{height:70px;background:linear-gradient(180deg,#07558d,#073b68);color:#fff;display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:100;border-radius:0 0 20px 20px}
+.gza-alljoin-header .back{position:absolute;left:12px;background:transparent;color:#fff}
+.gza-join-table-wrap{background:#fff;border-radius:15px;margin:22px 0;padding:13px 10px;overflow:auto}
+.gza-join-table{width:100%;border-collapse:collapse;min-width:620px;color:#333}
+.gza-join-table th{background:#f0f0f0;color:#666;padding:12px;text-align:left;border-radius:8px}
+.gza-join-table td{padding:13px 8px;border-bottom:0;font-size:14px}
+.gza-alljoin-toggle{width:calc(100% - 40px);margin:18px 20px 0;height:52px;border-radius:10px;background:linear-gradient(90deg,#1688e8,#7b2cff);color:#fff;font-size:17px;font-weight:900;box-shadow:0 0 16px #7b2cff44}
+.gza-alljoin-panel{margin:12px 20px 0;background:#0d142b;border:1px solid #343f70;border-radius:13px;padding:12px;display:none}
+.gza-alljoin-panel.open{display:block}
+.gza-slot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.gza-slot-card{min-height:58px;border:1px solid #303b70;border-radius:9px;background:#151d39;padding:9px 10px;color:#fff}
+.gza-slot-card .slot-label{font-size:11px;color:#9fa9c5;font-weight:800}
+.gza-slot-card .slot-player{margin-top:5px;font-size:13px;font-weight:900;word-break:break-word}
+.gza-slot-card.open-slot{border-color:#33415f}
+.gza-slot-card.joined-slot{border-color:#22d9ff;box-shadow:0 0 10px #22d9ff22}
+.gza-slot-card .slot-open{color:#31ef93}
+.gza-slot-card .slot-joined{color:#ffd84d}
+@media(max-width:600px){.gza-slot-grid{grid-template-columns:1fr 1fr}}
+.gza-alljoin-actions{position:sticky;bottom:0;display:grid;grid-template-columns:1fr 1fr;height:70px}
+.gza-alljoin-actions button{font-size:17px;font-weight:900;color:#fff}
+.gza-alljoin-actions .mine{background:#49d979}.gza-alljoin-actions .show{background:#5b9cec}
+.gza-joining-bg{background:#071b34;color:#fff;min-height:calc(100vh - 70px);padding-bottom:25px}
+.gza-wallet-summary{display:grid;grid-template-columns:38% 62%;align-items:center;padding:28px 20px 20px}
+.gza-wallet-icon{font-size:72px;text-align:center}
+.gza-pay-lines{font-size:17px;line-height:2.2}
+.gza-selected{margin:0 20px;background:#e9eff6;color:#333;border:1px solid #fff;padding:0 0 20px}
+.gza-selected h2{background:#dce5ef;text-align:center;padding:16px;font-size:24px;color:#435164}
+.gza-selected-grid{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;padding:20px 8px 0}
+.gza-selected-grid b{display:block;font-size:17px;margin-bottom:16px}
+.gza-selected-grid span{font-size:16px}
+.gza-add-info{background:#269fe2;color:#fff;padding:7px 12px;font-size:17px}
+.gza-join-actions{display:grid;grid-template-columns:1fr 1fr;gap:72px;padding:32px 69px}
+.gza-join-actions button{height:54px;border-radius:9px;color:#fff;font-size:18px}
+.gza-join-actions .cancel{background:#ef7479}.gza-join-actions .join{background:#57cbb3}
+.gza-note{text-align:center;font-size:17px;line-height:1.5;padding:10px 30px 40px}
+.gza-game-form{margin:0 20px;background:#202b3d;border-radius:10px;padding:20px;color:#fff}
+.gza-game-form h2{background:#269fe2;text-align:center;padding:14px;margin-bottom:18px}
+.gza-game-form input{width:100%;background:transparent;border:0;border-bottom:1px solid #c8d0da;color:#fff;padding:15px 0;margin-bottom:18px;outline:0}
+.gza-game-form input::placeholder{color:#fff}
+@media(max-width:600px){
+ .gza-home-card{height:168px}.gza-contest-image{width:100%;height:300px}
+ .gza-details-hero{height:300px}.gza-info-grid{gap:15px 2px}.gza-info-grid b{font-size:19px}
+ .gza-join-actions{gap:25px;padding:30px 28px}
+}
+@media(min-width:800px){
+ .gza-home-grid,.gza-contest-list{max-width:1000px;margin:auto}
+ .gza-details-bg,.gza-joining-bg{max-width:1000px;margin:auto}
+}
+
+
+/* HOME SCREENSHOT STYLE ONLY */
+.gza-home-screen{background:linear-gradient(rgba(7,27,52,0.90),rgba(7,27,52,0.90)),url('https://images.stockcake.com/public/2/f/e/2fef200f-4a8a-45e7-8ccc-f555aa7cd2a9_large/fierce-anime-warrior-stockcake.jpg') center/cover no-repeat fixed;min-height:100vh;padding-bottom:82px}
+.gza-notice{margin:10px 11px 12px;height:58px;border-radius:6px;background:#26384e;display:flex;align-items:center;overflow:hidden;color:#fff}
+.gza-notice-icon{width:108px;height:100%;background:#596b80;display:flex;align-items:center;justify-content:center;font-size:30px;flex:0 0 108px}
+.gza-notice-text{padding:0 14px;font-size:15px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gza-home-banner{margin:0 11px 14px;height:255px;border-radius:14px;overflow:hidden;position:relative;background:#173b5c;border:1px solid #2fc9df}
+.gza-home-banner img{width:100%;height:100%;object-fit:cover;display:block}
+.gza-home-banner .more{position:absolute;left:19px;bottom:12px;background:#6528e9;color:#fff;border:0;border-radius:18px;padding:10px 17px;font-size:15px;z-index:3}
+.gza-my-title{text-align:center;color:#fff;font-size:24px;font-weight:900;margin:12px 0 18px}
+.gza-my-matches{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:0 11px}
+.gza-my-card{height:112px;background:#fff;border:0;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#111;font-size:17px}
+.gza-my-icon{width:54px;height:54px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:29px}
+.gza-my-icon.green{background:#35c99a}.gza-my-icon.blue{background:#27c2db}.gza-my-icon.check{background:#2abd63}
+.gza-esports-title{color:#fff;font-size:20px;font-weight:900;margin:31px 11px 18px}
+.gza-home-games{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 11px}
+.gza-game-card{height:153px;border-radius:9px;overflow:hidden;position:relative;background:#183b5b;border:1px solid #2fc9df;padding:0;cursor:pointer}
+.gza-game-card img{width:100%;height:100%;object-fit:cover;display:block}
+.gza-game-card .game-name{position:absolute;left:7px;bottom:8px;color:#fff;font-size:15px;text-shadow:0 2px 4px #000}
+.gza-game-card .game-count{position:absolute;right:8px;bottom:8px;color:#20df68;font-size:14px;font-weight:800;text-shadow:0 2px 4px #000}
+.gza-game-card .game-count:before{content:"";display:inline-block;width:9px;height:9px;background:#17d963;border-radius:50%;margin-right:4px}
+
+
+/* ===== USER LOGIN / SIGN UP ===== */
+.gza-auth-screen{min-height:100vh;background:linear-gradient(rgba(6,26,51,0.88),rgba(6,26,51,0.88)),url('https://images.stockcake.com/public/2/f/e/2fef200f-4a8a-45e7-8ccc-f555aa7cd2a9_large/fierce-anime-warrior-stockcake.jpg') center/cover no-repeat fixed;padding:24px 18px 40px;color:#fff;display:flex;align-items:center;justify-content:center}
+.gza-auth-box{width:100%;max-width:430px;background:#fff;color:#222;border-radius:18px;padding:24px;box-shadow:0 8px 30px #0007}
+.gza-auth-logo{width:76px;height:76px;border-radius:50%;display:block;margin:0 auto 12px;object-fit:cover}
+.gza-auth-title{text-align:center;font-size:25px;font-weight:900;color:#073b68}
+.gza-auth-sub{text-align:center;color:#687385;margin:7px 0 20px}
+.gza-auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.gza-auth-tab{padding:12px;border-radius:9px;background:#e9eef4;color:#34404d;font-weight:900}
+.gza-auth-tab.active{background:#1d9fe5;color:#fff}
+.gza-auth-form{display:grid;gap:12px}
+.gza-auth-form input{width:100%;padding:13px;border:1px solid #ccd4dd;border-radius:9px;outline:0;color:#222;background:#fff}
+.gza-auth-submit{width:100%;padding:14px;border-radius:10px;background:#1d9fe5;color:#fff;font-weight:900;font-size:16px}
+.gza-auth-msg{min-height:20px;text-align:center;margin-top:10px;color:#c62828;font-size:13px;line-height:1.4}
+.gza-auth-note{text-align:center;color:#687385;font-size:12px;margin-top:14px;line-height:1.5}
+
+/* ===== GEN Z ARENA NEON GAMING THEME ===== */
+:root{--bg:#050817;--panel:#0b1024;--panel2:#111936;--line:#252d55;--purple:#7b2cff;--pink:#e91cff;--cyan:#22d9ff;--text:#f7f8ff;--muted:#aeb7d4;--green:#31ef93}
+html,body{background:radial-gradient(circle at 50% -10%,#1a1242 0%,#071022 35%,#050817 75%);color:var(--text)}
+body{font-family:Arial,sans-serif}
+#app{background:transparent}
+.topbar{background:linear-gradient(135deg,#090d20,#15103a 55%,#210c45);border-bottom:1px solid #5431a0;border-radius:0 0 22px 22px;box-shadow:0 6px 24px #0009}
+.brand-name{color:#fff;text-shadow:0 0 12px #7b2cff}
+.logo{border:2px solid #9b5cff;box-shadow:0 0 14px #7b2cff}
+.coin-box{background:#0c1330;border-color:#7d4cff;box-shadow:0 0 10px #7b2cff55}
+.notify{background:#151b38;color:#d6b8ff;border:1px solid #7d4cff}
+
+.gza-tx-row{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #29365f}
+.gza-tx-row:last-child{border-bottom:0}
+.gza-tx-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#161d3d;font-size:18px;flex:0 0 38px}
+.gza-tx-main{min-width:0;flex:1}
+.gza-tx-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.gza-tx-top b{font-size:13px}
+.gza-tx-amount{font-size:14px;white-space:nowrap}
+.gza-tx-amount.plus{color:#4ade80}.gza-tx-amount.minus{color:#fb7185}
+.gza-tx-meta,.gza-tx-ref{font-size:11px;color:#aeb9d5;margin-top:5px;word-break:break-word}
+.gza-tx-ref{color:#7f8baa}
+.page,.details-page,.position-page,.selected-page,.game-details-page,.leader-page,.subscription-page,.simple-page{background:transparent;color:var(--text)}
+.notice,.banner,.match-card,.category-card,.tournament-card,.details-hero,.selected-box,.player-form,.leader-card,.simple-card,.subscription-page .plan,.stats-card,.wallet-card,.result-row{border:1px solid var(--line);box-shadow:0 8px 24px #0006}
+.notice{background:linear-gradient(135deg,#0c1530,#15123a);border-color:#303b70}
+.notice-icon{background:linear-gradient(135deg,#4820a3,#8a1fe0)}
+.banner{background:linear-gradient(135deg,#100d2a,#241047);border-color:#773cff;box-shadow:0 0 25px #7b2cff33}
+.banner-btn,.join-btn,.primary-join,.join-now,.save-btn,.confirm-btn{background:linear-gradient(90deg,#6127ff,#d71ce9);box-shadow:0 6px 18px #7b2cff44}
+.section-title,.games-title{color:#fff;text-shadow:0 0 12px #7b2cff}
+.match-card,.tournament-card,.details-body,.position-list,.leader-card,.simple-card,.result-row{background:linear-gradient(145deg,#0d142b,#121a36);color:#fff}
+.match-card{border-color:#29365f}
+.category-card{background:#10172f;border-color:#34426f}
+.category-overlay{background:linear-gradient(transparent,#050817ee)}
+.meta-box,.rule-box,.position-header{background:#151d39;color:#e8ebff}
+.spots,.t-id,.muted{color:#9fa9c5}
+.progress{background:#202943}.progress span{background:linear-gradient(90deg,#23cfff,#8d35ff)}
+.join-btn.view{background:#303956}
+.inner-header{background:linear-gradient(135deg,#090d20,#17113b 55%,#240c48);border-bottom:1px solid #4d2d91;box-shadow:0 5px 20px #0008}
+.back{background:#f7f7ff;color:#29115b;box-shadow:0 0 12px #8c55ff55}
+.inner-title{color:#fff;text-shadow:0 0 10px #7b2cff}
+.tabs{background:transparent}.tab{background:#111a35;border:1px solid #29355e}.tab.active{background:linear-gradient(90deg,#6429ff,#c51de8);border-color:#a957ff}
+.selected-title,.player-form-title{background:linear-gradient(90deg,#5423d6,#a71de1)}
+.selected-box,.player-form{background:#0e152d}
+.selected-grid div{background:#161f3b;border:1px solid #29365f}
+.player-form input,.simple-page input,.simple-page select,.simple-page textarea{background:#0b1127!important;color:#fff!important;border:1px solid #394776!important;border-radius:9px!important;outline:none}
+.player-form input:focus,.simple-page input:focus,.simple-page select:focus,.simple-page textarea:focus{border-color:#9b5cff!important;box-shadow:0 0 0 2px #7b2cff33}
+.form-note,.note{color:#aeb7d4}
+.gza-leader-hero-title{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;font-size:24px;font-weight:900;margin:8px 0 18px;color:#fff;text-shadow:0 0 10px #7b2cff;overflow:hidden;padding:6px 0}
+.gza-web-mark{display:inline-block;font-size:22px;animation:gzaWebSwing 2s ease-in-out infinite;text-shadow:0 0 10px #1688e8}
+.gza-web-mark.flip{animation-delay:-1s}
+@keyframes gzaWebSwing{0%,100%{transform:rotate(-8deg) translateY(0);opacity:.75}50%{transform:rotate(8deg) translateY(-4px);opacity:1}}
+.leader-card{border-color:#252d55}.leader-card.me{background:linear-gradient(135deg,#201050,#0d2d52);border-color:#25d9ff;box-shadow:0 0 22px #7b2cff55}.player-name.subscribed{color:#ffd84d;text-shadow:0 0 8px #ffd84d}.you-mini,.sub-mini{border-color:#22d9ff!important}
+.subscriber-name{color:#ffd84d!important;font-weight:900;position:relative;display:inline-block;text-shadow:0 0 5px #ffd84d;overflow:hidden;animation:gzaPremiumPulse 2.8s ease-in-out infinite}
+.subscriber-name:before{content:"";position:absolute;inset:-3px -10px;border-radius:9px;background:repeating-linear-gradient(135deg,transparent 0 13px,#238bff22 14px 15px,transparent 16px 28px);pointer-events:none;opacity:.7;animation:gzaWebDrift 3.2s linear infinite}
+.subscriber-name:after{content:"";position:absolute;top:-10%;bottom:-10%;left:-80%;width:42%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,#fff9a8,transparent);animation:gzaNameShine 2.4s ease-in-out infinite}
+.gza-verified{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;margin-left:5px;border-radius:50%;background:#1688e8;color:#fff;font-size:11px;font-weight:900;vertical-align:middle;box-shadow:0 0 7px #1688e866;position:relative;z-index:2}
+.gza-premium-name{position:relative;display:inline-block}
+@keyframes gzaPremiumPulse{0%,100%{text-shadow:0 0 5px #ffd84d,0 0 0 #1688e8}50%{text-shadow:0 0 8px #ffd84d,0 0 16px #1688e8}}
+@keyframes gzaWebDrift{0%{background-position:0 0}100%{background-position:56px 56px}}
+.gza-sub-feature{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:4px 8px;border:1px solid #ffd84d55;border-radius:20px;background:#ffd84d12;color:#ffd84d;font-size:10px;font-weight:900;animation:gzaPremiumPulse 2.8s ease-in-out infinite}
+.gza-sub-benefits{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.gza-sub-benefit{padding:10px;border:1px solid #4a3d76;border-radius:10px;background:#0d1330;color:#dfe4ff;font-size:12px;font-weight:800}
+.gza-credential-box{margin:16px 20px 0;padding:15px;border-radius:13px;background:linear-gradient(135deg,#101a38,#1b1240);border:1px solid #7b2cff;box-shadow:0 0 18px #7b2cff33;color:#fff}
+.gza-credential-title{font-size:17px;font-weight:900;color:#ffd84d;margin-bottom:10px}
+.gza-credential-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #ffffff14}
+.gza-credential-row:last-child{border-bottom:0}
+.gza-credential-row span:first-child{color:#aeb7d4}
+.gza-credential-row b{color:#fff;word-break:break-all}.gza-copy-btn{flex:0 0 auto;padding:6px 9px;border-radius:7px;background:linear-gradient(90deg,#1688e8,#7b2cff);color:#fff;font-size:10px;font-weight:900;box-shadow:0 0 9px #1688e855}.gza-copy-btn:active{transform:scale(.96)}
+
+@keyframes gzaNameShine{0%{left:-80%;opacity:0}18%{opacity:1}55%{left:140%;opacity:0}100%{left:140%;opacity:0}}
+/* ===== PREMIUM SPIDER-WEB SUPERHERO NAME THEME ===== */
+.gza-spider-premium{position:relative;display:inline-flex;align-items:center;gap:4px;color:#ffd84d!important;font-weight:900!important;text-shadow:0 0 5px #ff2638,0 0 10px #1688e8,0 0 16px #1688e855!important;animation:gzaSpiderPulse 2.2s ease-in-out infinite;isolation:isolate}
+.gza-spider-premium:before{content:"";position:absolute;inset:-5px -9px;border-radius:8px;z-index:-1;background:repeating-linear-gradient(0deg,transparent 0 8px,#1688e822 9px 10px,transparent 11px 16px),repeating-linear-gradient(90deg,transparent 0 8px,#ff263822 9px 10px,transparent 11px 16px);opacity:.9;animation:gzaSpiderWeb 2.8s linear infinite}
+.gza-spider-premium:after{content:"";position:absolute;top:-15%;bottom:-15%;left:-65%;width:32%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,#ffffffee,transparent);pointer-events:none;animation:gzaSpiderSweep 2.1s ease-in-out infinite}
+.gza-spider-badge{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#1688e8;color:#fff;font-size:11px;font-weight:900;border:1px solid #7edbff;box-shadow:0 0 7px #1688e8aa;position:relative;z-index:2}
+.gza-spider-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:12px;background:linear-gradient(90deg,#d7192f,#1559d6);color:#fff;font-size:8px;font-weight:900;letter-spacing:.3px;box-shadow:0 0 8px #1688e855}
+@keyframes gzaSpiderPulse{0%,100%{filter:drop-shadow(0 0 2px #ff2638)}50%{filter:drop-shadow(0 0 7px #1688e8)}}
+@keyframes gzaSpiderWeb{0%{background-position:0 0,0 0}100%{background-position:28px 28px,-28px -28px}}
+@keyframes gzaSpiderSweep{0%,15%{left:-65%;opacity:0}35%{opacity:1}65%,100%{left:145%;opacity:0}}
+
+.gza-spider-premium .gza-spider-tag{color:#fff!important}.gza-spider-premium .gza-spider-badge{color:#fff!important}
+@media (prefers-reduced-motion:reduce){.subscriber-name,.subscriber-name:before,.subscriber-name:after,.gza-web-mark,.gza-sub-feature{animation:none!important}}
+.simple-card{background:linear-gradient(145deg,#0c1329,#131a35);color:#fff}
+.subscription-page .plan{background:linear-gradient(145deg,#10152f,#1a1239);border-color:#6e3ee0}
+/* ===== V11 VISIBILITY + HISTORY POLISH ===== */
+.earn-page .simple-card,.earn-page .simple-card h3,.earn-page .simple-card b,.earn-page .simple-card p,.earn-page .simple-card div{color:#f7f8ff!important}
+.earn-page .muted{color:#aeb7d4!important}
+.earn-page .gza-ref-code{background:#f2f5f8!important;color:#171b2e!important;border:1px solid #394776;border-radius:9px;padding:12px;font-weight:900;letter-spacing:1px}
+.subscription-page .plan{color:#f7f8ff!important}
+.subscription-page .plan h3{color:#ffd84d!important;font-size:18px}
+.subscription-page .plan p{color:#dfe4ff!important}
+.subscription-page .plan p:last-of-type{color:#ffd84d!important}
+.subscription-page .plan button{color:#fff!important;font-weight:900}
+.gza-history-card{background:linear-gradient(145deg,#0d142b,#151d39)!important;border:1px solid #343f70!important;box-shadow:0 8px 24px #0006}
+.gza-history-card .history-label{color:#9fa9c5;font-size:12px}
+.gza-history-card .history-value{color:#fff;font-weight:800;word-break:break-word}
+.gza-history-card .history-status{color:#31ef93;font-weight:900}
+.gza-history-card .gza-credential-box{margin:14px 0 0}
+
+.bottom-nav{background:rgba(5,9,24,.96);border-top:1px solid #303963;box-shadow:0 -8px 25px #0009;backdrop-filter:blur(10px)}
+.nav-item{color:#b8c0dc}.nav-item:active{color:#fff}
+.sub-bubble{right:16px;bottom:88px;width:66px;height:66px;padding:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:radial-gradient(circle at 35% 30%,#ff4df0,#8a20ff 52%,#3b0b87);border:2px solid #ff69ef;color:#fff;font-size:13px;line-height:1;box-shadow:0 0 0 4px #8a2cff33,0 0 18px #d72bff,0 0 38px #7b2cffaa;animation:subPulse 1.7s ease-in-out infinite;z-index:150}
+.sub-bubble .sub-star{font-size:22px;line-height:22px;filter:drop-shadow(0 0 5px #ffd84d)}
+.sub-bubble span:last-child{font-weight:1000;letter-spacing:.5px}
+@keyframes subPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 4px #8a2cff33,0 0 18px #d72bff,0 0 38px #7b2cff88}50%{transform:scale(1.08);box-shadow:0 0 0 7px #8a2cff22,0 0 28px #ff2ce8,0 0 55px #7b2cffbb}}
+#profileSaveMsg{background:#0a261d;border:1px solid #1ee88a;border-radius:9px;padding:10px;min-height:0;color:#35f28b!important}
+.error-box{background:#2a1020;border-color:#8e2d66}
+button{transition:transform .15s ease,box-shadow .15s ease}button:active{transform:scale(.97)}
+@media(max-width:600px){.sub-bubble{right:13px;bottom:86px}.topbar{height:72px}.brand-name{font-size:18px}.section-title,.games-title{font-size:23px}}
+
+.gza-notify-wrap{position:fixed;left:0;right:0;top:18px;z-index:99999;display:flex;justify-content:center;pointer-events:none;padding:0 16px}
+.gza-notify{width:min(92vw,430px);background:#fff;color:#111;border-radius:16px;padding:14px 16px;box-shadow:0 12px 35px #0005;border-left:5px solid #7b2cff;display:flex;gap:12px;align-items:flex-start;font-weight:700;animation:gzaNotifyIn .25s ease}
+.gza-notify.success{border-left-color:#16a34a}.gza-notify.error{border-left-color:#dc2626}.gza-notify.info{border-left-color:#2563eb}
+.gza-notify-icon{font-size:22px;line-height:1}.gza-notify-text{line-height:1.35}
+@keyframes gzaNotifyIn{from{opacity:0;transform:translateY(-16px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.gza-auth-box{animation:gzaAuthBoxIn .55s cubic-bezier(.2,.8,.2,1)}
+.gza-auth-logo{animation:gzaLogoFloat 2.8s ease-in-out infinite}
+.gza-auth-title{animation:gzaTitleIn .65s ease .08s both}
+.gza-auth-sub{animation:gzaTitleIn .65s ease .16s both}
+.gza-auth-tabs{animation:gzaTitleIn .65s ease .24s both}
+.gza-auth-form{animation:gzaTitleIn .65s ease .32s both}
+@keyframes gzaAuthBoxIn{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes gzaLogoFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+@keyframes gzaTitleIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+
+
+
+
+</style>
+
+<style id="gza-no-banner-dots">.gza-home-dots,.banner-dots,.slider-dots,.gza-banner-dots{display:none!important}</style>
+</head>
+
+<body>
+<!-- TEMP DEBUG CONSOLE (mobile) — remove this script tag once deposit issue is fixed -->
+<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+<script>eruda.init();</script>
+<script>
+window.addEventListener("error", function(e){
+  try{ console.error("[GLOBAL ERROR]", e.message, e.filename+":"+e.lineno); }catch(_){}
+});
+window.addEventListener("unhandledrejection", function(e){
+  try{ console.error("[UNHANDLED PROMISE REJECTION]", e.reason); }catch(_){}
+});
+</script>
+<div id="app"><div class="loading"><div class="gza-loading-spinner"></div><div>GEN Z ARENA loading...</div></div></div>
+
+<script>
+/* =========================================================
+   IMAGE URL COMPATIBILITY FIX
+   Reads imageUrl/image/bannerUrl/url/src so the User Panel
+   matches the existing Admin + Staff Firebase data.
+   ========================================================= */
+
+/* =========================================================
+   GEN Z ARENA USER PANEL
+   SAME FIREBASE PROJECT / RTDB PATHS AS OLD ADMIN + STAFF
+   No fake/generated category/banner images are used.
+   Images appear only when Admin has stored a real imageUrl.
+   ========================================================= */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAoj08gRvPz11_yP-4zoRJROgBuVDq6QPo",
+  authDomain: "devanshchubey-501f3.firebaseapp.com",
+  databaseURL: "https://devanshchubey-501f3-default-rtdb.firebaseio.com",
+  projectId: "devanshchubey-501f3",
+  storageBucket: "devanshchubey-501f3.firebasestorage.app",
+  messagingSenderId: "860669059809",
+  appId: "1:860669059809:web:0b899ca06dac0424d64da0"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+/* ===== FCM PUSH NOTIFICATIONS =====
+   Web FCM works on HTTPS and needs firebase-messaging-sw.js at the site root.
+   For the Android APK, the native wrapper can set window.GZA_FCM_TOKEN; this
+   page will save that token to the same Firebase user record automatically.
+*/
+let gzaMessaging=null;
+let gzaFcmStartedFor="";
+async function gzaSaveFcmToken(token){
+  if(!token||!currentUser?.uid)return;
+  try{
+    await db.ref("users/"+currentUser.uid).update({fcmToken:String(token),fcmTokenUpdatedAt:Date.now()});
+    if(cache.users?.[currentUser.uid]){
+      cache.users[currentUser.uid].fcmToken=String(token);
+      cache.users[currentUser.uid].fcmTokenUpdatedAt=Date.now();
+    }
+  }catch(e){console.warn("FCM token save failed",e);}
+}
+async function gzaInitFCM(){
+  const uid=String(currentUser?.uid||"");
+  if(!uid||gzaFcmStartedFor===uid)return;
+  gzaFcmStartedFor=uid;
+  try{
+    if(window.GZA_FCM_TOKEN) await gzaSaveFcmToken(window.GZA_FCM_TOKEN);
+    if(!firebase.messaging || !window.isSecureContext) return;
+    if(!("Notification" in window)) return;
+    if(Notification.permission==="denied") return;
+    const permission=Notification.permission==="granted" ? "granted" : await Notification.requestPermission();
+    if(permission!=="granted")return;
+    if(!navigator.serviceWorker)return;
+    const registration=await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    gzaMessaging=firebase.messaging();
+    const token=await gzaMessaging.getToken({serviceWorkerRegistration:registration});
+    if(token)await gzaSaveFcmToken(token);
+    gzaMessaging.onMessage(payload=>{
+      const n=payload?.notification||{};
+      const title=n.title||payload?.data?.title||"GEN Z ARENA";
+      const body=n.body||payload?.data?.body||"New notification";
+      try{gzaNotify(title+" — "+body,"info");}catch(_){}
+    });
+  }catch(e){console.warn("FCM initialization skipped/failed",e);}
+}
+
+const LOGO_URL = "https://i.ibb.co/C3RgJC9f/IMG-20260827-204608-539.jpg";
+
+/* ⚠️ SET THIS to wherever you deploy wallet-deposit.js (your Node/Express
+   server or Firebase Functions). Example: "https://yourapp.onrender.com/api/wallet"
+   or "https://us-central1-devanshchubey-501f3.cloudfunctions.net/wallet" */
+const WALLET_API_BASE = "https://tournament-notification-backend-1.onrender.com/api/wallet";
+
+let currentUser = null;
+let cache = {
+  categories:{},
+  tournaments:{},
+  matches:{},
+  users:{},
+  staff:{},
+  tournamentParticipants:{},
+  results:{},
+  banners:{},
+  subscriptions:{},
+  notifications:{},homeMegaphone:{},withdrawalRequests:{},coinTransactions:{},support:{}
+};
+let currentCategoryId = "";
+let currentTournament = null;
+let currentTab = "upcoming";
+let selectedPosition = null;
+let selectedTeam='';
+let gameName = "";
+let gameId = "";
+
+function esc(v){
+  return String(v ?? "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+function keySafe(v){return String(v||"").replace(/[.#$[\]/]/g,"_");}
+function values(path){
+  return Object.entries(cache[path]||{}).map(([id,v])=>({id,...(v||{})}));
+}
+function firstImage(v){
+  /*
+   * Admin/Staff currently use different image field names:
+   * Category/Tournament/Match -> imageUrl
+   * Some older records -> image / bannerUrl
+   * Admin Banner -> url
+   * Support a few common aliases so existing Firebase data
+   * displays without changing the existing UI.
+   */
+  return String(
+    v?.imageUrl ||
+    v?.imageURL ||
+    v?.image ||
+    v?.bannerUrl ||
+    v?.bannerURL ||
+    v?.url ||
+    v?.src ||
+    ""
+  ).trim();
+}
+function categoryName(c){return c?.title || c?.name || c?.label || c?.id || "";}
+function tournamentName(t){return t?.name || t?.title || t?.id || "";}
+function tournamentTeamMode(t){
+  const raw=String(t?.matchType||t?.teamType||t?.teamMode||t?.type||"Solo").trim().toLowerCase();
+  if(raw.includes("squad"))return "squad";
+  if(raw.includes("duo"))return "duo";
+  return "solo";
+}
+function tournamentTeams(t){
+  return tournamentTeamMode(t)==="solo" ? ["A"] : ["A","B"];
+}
+function teamLabel(team){
+  const x=String(team||"").trim().toUpperCase();
+  return x.startsWith("TEAM ") ? x : `TEAM ${x||"A"}`;
+}
+function statusNorm(v){return String(v||"").trim().toLowerCase();}
+function normalizeStatus(v){
+  const s=statusNorm(v);
+  if(s==="deleted")return "deleted";
+  if(s==="cancelled"||s==="canceled"||s==="cancel")return "cancelled";
+  if(s==="live"||s==="ongoing")return "ongoing";
+  if(s==="completed"||s==="resulted"||s==="result")return "resulted";
+  return "upcoming";
+}
+function catMatches(a,b){
+  const x=statusNorm(a),y=statusNorm(b);
+  return x===y || (x && y && (x.includes(y)||y.includes(x)));
+}
+function participantsForTournament(tid){
+  return values("tournamentParticipants").filter(p=>String(p.tournamentId||"")===String(tid));
+}
+function joinedForTournament(tid){
+  return participantsForTournament(tid).filter(p=>{
+    const s=statusNorm(p.status);
+    return !s || s==="joined" || s==="active";
+  });
+}
+function userIsBlocked(){
+  if(!currentUser)return false;
+  const u=cache.users?.[currentUser.uid]||{};
+  return statusNorm(u.status)==="blocked";
+}
+
+/* ---------------- Firebase realtime listeners ---------------- */
+
+function listen(path, render=true){
+  db.ref(path).on("value",snap=>{
+    cache[path]=snap.val()||{};
+    if(path==="withdrawalRequests" && document.querySelector("#withdrawalStatusList")) withdrawalInfo();
+    else if(render) renderCurrent();
+  },err=>{
+    console.warn("Firebase read error:",path,err);
+  });
+}
+
+function startListeners(){
+  listen("categories");
+  listen("tournaments");
+  listen("matches");
+  listen("users");
+  listen("staff");
+  listen("tournamentParticipants");
+  listen("joinHistory");
+  listen("results");
+  listen("banners");
+  listen("subscriptions");
+  listen("notifications");
+  listen("homeMegaphone");
+  listen("withdrawalRequests", false);
+  listen("coinTransactions", false);
+  listen("coinTransactions", false);
+  listen("coupons");
+  listen("announcements");
+  listen("policies");
+  listen("settings");
+  // GEN Z ARENA FIX: some admin panels publish Customer Support details
+  // to a dedicated "support" node instead of inside "settings" — listen
+  // to both so an admin update always reaches the User Panel.
+  listen("support");
+}
+
+let authMode="login";
+
+function isPrivilegedUser(u){
+  const role=statusNorm(u?.role||u?.userRole||u?.accountType||u?.type);
+  const staffId=statusNorm(u?.staffId||u?.staffID||u?.staffCode);
+  const email=statusNorm(currentUser?.email);
+  return role.includes("admin") || role.includes("staff") ||
+    staffId.startsWith("staff") || email==="genzarena@admin.com" || email.startsWith("staff");
+}
+
+async function getUserRecord(uid){
+  const local=cache.users?.[uid];
+  if(local && Object.keys(local).length)return local;
+  try{
+    const snap=await db.ref("users/"+uid).once("value");
+    return snap.val()||{};
+  }catch(_){return {};}
+}
+
+
+function gzaNotify(message,type="info"){
+  const old=document.querySelector(".gza-notify-wrap"); if(old)old.remove();
+  const wrap=document.createElement("div"); wrap.className="gza-notify-wrap";
+  const icon=type==="success"?"✓":type==="error"?"!":"i";
+  const safe=typeof esc==="function"?esc(String(message||"")):String(message||"");
+  wrap.innerHTML=`<div class="gza-notify ${type}"><div class="gza-notify-icon">${icon}</div><div class="gza-notify-text">${safe}</div></div>`;
+  document.body.appendChild(wrap);
+  setTimeout(()=>wrap.remove(),2800);
+}
+window.alert=function(message){
+  const msg=String(message||"");
+  const type=/success|saved|completed|approved|paid|copied/i.test(msg)?"success":/error|failed|unable|invalid|blocked|cannot|not available|please/i.test(msg)?"error":"info";
+  gzaNotify(msg,type);
+};
+
+function showAuth(mode="login",message=""){
+  authMode=mode;
+  const isLogin=mode==="login";
+  document.getElementById("app").innerHTML=`
+    <div class="gza-auth-screen">
+      <div class="gza-auth-box">
+        <img class="gza-auth-logo" src="${LOGO_URL}" alt="GEN Z ARENA" onerror="this.style.display='none'">
+        <div class="gza-auth-title">GEN Z ARENA</div>
+        <div class="gza-auth-sub">${isLogin?"Login to your User Account":"Create your User Account"}</div>
+        <div class="gza-auth-tabs">
+          <button type="button" class="gza-auth-tab ${isLogin?"active":""}" onclick="showAuth('login')">LOGIN</button>
+          <button type="button" class="gza-auth-tab ${!isLogin?"active":""}" onclick="showAuth('signup')">SIGN UP</button>
+        </div>
+        <form class="gza-auth-form" onsubmit="submitAuth(event)">
+          ${!isLogin?`
+            <input id="authName" placeholder="Full Name" autocomplete="name" required>
+            <input id="authIgn" placeholder="In Game Name" required>
+            <input id="authGameUid" placeholder="In Game UID" required>
+          `:""}
+          <input id="authEmail" type="email" placeholder="Email Address" autocomplete="email" required>
+          <input id="authPassword" type="password" placeholder="Password (minimum 6 characters)" autocomplete="${isLogin?"current-password":"new-password"}" minlength="6" required>
+          ${!isLogin?`<input id="authPassword2" type="password" placeholder="Confirm Password" autocomplete="new-password" minlength="6" required>`:""}
+          <button class="gza-auth-submit" type="submit">${isLogin?"LOGIN":"CREATE ACCOUNT"}</button>
+        </form>
+        <div class="gza-auth-msg">${esc(message)}</div>
+        <div class="gza-auth-note">Player accounts only.</div>
+      </div>
+    </div>`;
+}
+
+async function submitAuth(ev){
+  ev.preventDefault();
+  const email=document.getElementById("authEmail")?.value.trim()||"";
+  const password=document.getElementById("authPassword")?.value||"";
+  if(!email||password.length<6){showAuth(authMode,"Please enter a valid email and a password of at least 6 characters.");return;}
+  try{
+    if(authMode==="signup"){
+      const name=document.getElementById("authName")?.value.trim()||"";
+      const ign=document.getElementById("authIgn")?.value.trim()||"";
+      const gameUid=document.getElementById("authGameUid")?.value.trim()||"";
+      const password2=document.getElementById("authPassword2")?.value||"";
+      if(!name||!ign||!gameUid){showAuth("signup","Please fill all player details.");return;}
+      if(password!==password2){showAuth("signup","Passwords do not match.");return;}
+      const cred=await auth.createUserWithEmailAndPassword(email,password);
+      const now=Date.now();
+      const referralCode="GZA"+String(Math.random().toString(36).slice(2,8)).toUpperCase();
+      const userData={name,email,ign,inGameName:ign,gameUid,inGameUid:gameUid,role:"user",status:"active",coins:0,referralCode,createdAt:now,updatedAt:now};
+      await db.ref("users/"+cred.user.uid).set(userData);
+      currentUser=cred.user;
+      renderCurrent();
+    }else{
+      const cred=await auth.signInWithEmailAndPassword(email,password);
+      currentUser=cred.user;
+      const u=await getUserRecord(cred.user.uid);
+      if(isPrivilegedUser(u)){
+        await auth.signOut();
+        currentUser=null;
+        showAuth("login","This account cannot be used here.");
+        return;
+      }
+      renderCurrent();
+    }
+  }catch(e){
+    console.warn("User authentication error",e);
+    const code=String(e?.code||"");
+    let msg="Unable to complete this request. Please check your details and try again.";
+    if(code.includes("email-already-in-use"))msg="This email is already registered. Please login.";
+    else if(code.includes("invalid-credential")||code.includes("wrong-password")||code.includes("user-not-found"))msg="Email or password is incorrect.";
+    else if(code.includes("invalid-email"))msg="Please enter a valid email address.";
+    else if(code.includes("weak-password"))msg="Please use a stronger password.";
+    showAuth(authMode,msg);
+  }
+}
+
+async function startAuth(){
+  try{await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);}catch(_){ }
+  auth.onAuthStateChanged(async user=>{
+    if(user){
+      currentUser=user;
+      const u=await getUserRecord(user.uid);
+      if(isPrivilegedUser(u)){
+        try{await auth.signOut();}catch(_){}
+        currentUser=null;
+        showAuth("login","This account cannot be used here.");
+        return;
+      }
+      await gzaInitFCM();
+      gzaStartAtHome();
+    }else{
+      currentUser=null;
+      gzaFcmStartedFor="";
+      showAuth("login");
+    }
+  });
+}
+
+/* ---------------- Subscription display helpers ---------------- */
+function isUserSubscribed(u){
+  return statusNorm(u?.subscription||u?.subscriptionStatus)==="active" || statusNorm(u?.isSubscribed)==="true" || u?.subscribed===true;
+}
+function subVerifiedMark(u){
+  return isUserSubscribed(u) ? '<span class="gza-verified" title="Premium verified">✓</span>' : '';
+}
+function subFeatureStrip(u){
+  if(!isUserSubscribed(u)) return '';
+  return '<div class="gza-sub-feature">⭐ PREMIUM • VERIFIED • HIGHLIGHTED</div>';
+}
+function userDisplayName(u){
+  return String(u?.name||u?.username||u?.ign||u?.inGameName||"Player");
+}
+function premiumNameHtml(name,u,tag=true){
+  const safeName=esc(String(name||"Player"));
+  if(!isUserSubscribed(u)) return safeName;
+  return `<span class="gza-spider-premium">${safeName}<span class="gza-spider-badge" title="Premium verified">✓</span>${tag?'<span class="gza-spider-tag">🕸 PREMIUM</span>':""}</span>`;
+}
+function recordNameHtml(record,fallback="Player",tag=false){
+  const uid=String(record?.userId||record?.uid||record?.userUid||record?.playerUid||"");
+  const u=uid ? (cache.users?.[uid]||{}) : {};
+  const name=record?.userName||record?.name||record?.inGameName||record?.ign||fallback;
+  return premiumNameHtml(name,u,tag);
+}
+function getMatchForTournament(tid){
+  const all=values("matches");
+  return all.find(m=>String(m.tournamentId||m.tournamentID||m.tournament||"")===String(tid)) || all.find(m=>String(m.id||"")===String(tid)) || null;
+}
+function matchCredentialData(tid){
+  const t=cache.tournaments?.[tid]||{};
+  const m=getMatchForTournament(tid)||{};
+  const roomId=m.roomId||m.roomID||m.room_id||m.roomCode||m.roomcode||m.room||m.idRoom||t.roomId||t.roomID||t.room_id||t.roomCode||t.roomcode||t.room||"";
+  const password=m.password||m.pass||m.roomPassword||m.roomPass||m.room_password||t.password||t.pass||t.roomPassword||t.roomPass||t.room_password||"";
+  const link=m.roomLink||m.joinLink||m.link||t.roomLink||t.joinLink||"";
+  return {roomId:String(roomId||""),password:String(password||""),link:String(link||"")};
+}
+function myJoinedTournament(tid){
+  const uid=String(currentUser?.uid||"");
+  return !!uid && joinedForTournament(tid).some(p=>String(p.userId||p.uid||"")===uid);
+}
+function renderMatchCredentials(tid){
+  if(!myJoinedTournament(tid)) return '';
+  const c=matchCredentialData(tid);
+  if(!c.roomId&&!c.password&&!c.link) return '<div class="gza-credential-box"><div class="gza-credential-title">🎮 Room Details</div><div style="color:#aeb7d4;font-size:13px;line-height:1.5">You have joined this tournament. Room ID and password will appear here when they are available.</div></div>';
+  return `<div class="gza-credential-box"><div class="gza-credential-title">🎮 Room Details</div>${c.roomId?`<div class="gza-credential-row"><span>Room ID</span><div style="display:flex;align-items:center;gap:7px;max-width:70%"><b style="word-break:break-all">${esc(c.roomId)}</b><button type="button" class="gza-copy-btn" onclick="copyRoomValue('${esc(c.roomId)}')">COPY</button></div></div>`:''}${c.password?`<div class="gza-credential-row"><span>Password</span><div style="display:flex;align-items:center;gap:7px;max-width:70%"><b style="word-break:break-all">${esc(c.password)}</b><button type="button" class="gza-copy-btn" onclick="copyRoomValue('${esc(c.password)}')">COPY</button></div></div>`:''}</div>`;
+}
+
+function copyRoomValue(value){
+  const text=String(value||"");
+  if(!text){gzaNotify("Nothing to copy.","error");return;}
+  const done=()=>gzaNotify("Copied successfully.","success");
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(()=>copyRoomFallback(text,done));
+  }else copyRoomFallback(text,done);
+}
+function copyRoomFallback(text,done){
+  const ta=document.createElement("textarea");
+  ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand("copy");done();}catch(_){gzaNotify("Copy failed. Please copy manually.","error");}
+  ta.remove();
+}
+
+function gzaShowLoading(text="Loading..."){
+  const app=document.getElementById("app");
+  if(!app)return;
+  app.innerHTML=`<div class="loading"><div class="gza-loading-spinner"></div><div>${esc(String(text))}</div></div>`;
+}
+function gzaSaveCurrentRoute(){
+  try{
+    const last=gzaRouteStack[gzaRouteStack.length-1];
+    if(last)localStorage.setItem("gza_last_route",JSON.stringify({name:last.name,args:last.args||[]}));
+  }catch(_){}
+}
+function gzaRestoreLastRoute(){
+  try{
+    const raw=localStorage.getItem("gza_last_route");
+    if(!raw)return false;
+    const r=JSON.parse(raw);
+    const fn=window[r?.name];
+    if(!r?.name || typeof fn!=="function")return false;
+    localStorage.removeItem("gza_last_route");
+    gzaHistoryNavigatingBack=true;
+    try{
+      gzaRouteStack=[{name:r.name,args:Array.isArray(r.args)?r.args:[],key:gzaRouteKey(r.name,r.args||[])}];
+      fn.__gzaOriginal ? fn.__gzaOriginal.apply(window,r.args||[]) : fn.apply(window,r.args||[]);
+    }finally{gzaHistoryNavigatingBack=false;}
+    return true;
+  }catch(_){return false;}
+}
+function refreshApp(btn){
+  try{
+    if(btn){btn.classList.remove("spinning");void btn.offsetWidth;btn.classList.add("spinning");}
+    gzaSaveCurrentRoute();
+    gzaShowLoading("Refreshing...");
+    if(typeof gzaNotify==="function")gzaNotify("Refreshing…","info");
+  }catch(_){}
+  setTimeout(()=>window.location.reload(),650);
+}
+
+/* ---------------- Header / navigation ---------------- */
+
+function homeHeader(){
+  const u=currentUser ? (cache.users?.[currentUser.uid]||{}) : {};
+  const coins=Number(u.coins||0);
+  return `
+  <div class="topbar">
+    <div class="brand">
+      <img class="logo" src="${LOGO_URL}" alt="GEN Z ARENA"
+           onerror="this.style.display='none'">
+      <div class="brand-name ${isUserSubscribed(u)?"subscriber-name":""}">${premiumNameHtml(userDisplayName(u),u,true)}</div>
+    </div>
+    <div class="header-right">
+      <button class="coin-box" onclick="wallet()">🪙 ${coins}</button>
+      <button class="notify" onclick="notifications()">🔔</button>
+    </div>
+  </div>`;
+}
+function innerHeader(title){
+  return `<div class="inner-header">
+    <button class="back" onclick="gzaBack()">‹</button>
+    <div class="inner-title">${esc(title)}</div>
+    <div style="width:40px;height:40px;flex:0 0 40px"></div>
+  </div>`;
+}
+function bottom(){
+  return `<button class="sub-bubble" onclick="subscription()" aria-label="Open Subscription"><span class="sub-star">⭐</span><span>SUB</span></button><div class="bottom-nav">
+    <button class="nav-item" onclick="earn()"><div>🎁</div>Earn</button>
+    <button class="nav-item" onclick="leaderboard()"><div>🏆</div>Leaderboard</button>
+    <button class="nav-item" onclick="home()"><div>⌂</div>Home</button>
+    <button class="nav-item" onclick="menu()"><div>•••</div>Menu</button>
+  </div>`;
+}
+
+/* ---------------- Earn ---------------- */
+
+function earn(){
+  const u=currentUser ? (cache.users?.[currentUser.uid]||{}) : {};
+  const uid=String(currentUser?.uid||"");
+  const code=ensureReferralCode();
+  const results=values("results").filter(r=>String(r.uid||r.userId||r.playerUid||"")===uid);
+  const winningCoins=results.reduce((sum,r)=>sum+Number(r.prize||r.winningCoins||r.coins||0),0);
+  const referred=code ? values("users").filter(x=>String(x.referredBy||x.referralCodeUsed||"")===code) : [];
+  const balance=Number(u.coins||0);
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Earn")}
+    <div class="simple-page earn-page">
+      <div class="simple-card" style="background:linear-gradient(135deg,#0a4f80,#126aa3);color:#fff;border:0">
+        <div style="font-size:14px;opacity:.9">CURRENT COIN BALANCE</div>
+        <div style="font-size:38px;font-weight:900;margin-top:5px">🪙 ${balance}</div>
+        <div style="font-size:12px;opacity:.85;margin-top:5px">Coins</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="simple-card" style="margin:0;text-align:center">
+          <div style="font-size:28px">🏆</div><b>Winning Coins</b>
+          <div style="font-size:23px;font-weight:900;margin-top:5px">🪙 ${winningCoins}</div>
+        </div>
+        <div class="simple-card" style="margin:0;text-align:center">
+          <div style="font-size:28px">👥</div><b>Referrals</b>
+          <div style="font-size:23px;font-weight:900;margin-top:5px">${referred.length}</div>
+        </div>
+      </div>
+      <div class="simple-card" style="margin-top:10px">
+        <h3>🔗 Refer & Earn</h3>
+        <p class="muted" style="margin-top:6px">Share your referral code with friends.</p>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:12px">
+          <div class="gza-ref-code" style="flex:1">${esc(code||"Generating…")}</div>
+          <button class="join-btn" onclick="copyReferral('${esc(code)}')">COPY</button>
+        </div>
+        <button class="join-btn" style="width:100%;margin-top:12px" onclick="referral()">VIEW REFERRALS</button>
+      </div>
+      <div class="simple-card">
+        <h3>💡 How You Earn</h3>
+        <div style="margin-top:10px;line-height:1.7">
+          <div>1. 🏆 Play eligible tournaments.</div>
+          <div>2. 🎁 Winning rewards are added to your coin balance.</div>
+          <div>3. 🔗 Refer friends using your referral code.</div>
+        </div>
+      </div>
+      <button class="join-btn" style="width:100%;margin-top:2px" onclick="statistics()">VIEW MY RESULTS</button>
+    </div>
+    ${bottom()}
+  `;
+}
+
+/* ---------------- Home ---------------- */
+
+function getHomeBanner(){
+  const banners=values("banners")
+    .filter(b=>statusNorm(b.status)!=="inactive" && statusNorm(b.status)!=="disabled")
+    .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+  return banners[0]||null;
+}
+function renderHomeBanner(){
+  const banners=values("banners")
+    .filter(b=>statusNorm(b.status)!=="inactive" && statusNorm(b.status)!=="disabled")
+    .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+  const b=banners[0]||null;
+  const url=b ? firstImage(b) : "";
+  if(!url){
+    return `<div class="banner" style="height:255px;margin:10px 11px 18px;background:#102f50">
+      <div style="color:#fff;font-weight:800;font-size:14px;opacity:.75">Banner will appear here when available.</div>
+    </div>`;
+  }
+  return `<div class="banner has-image" style="height:255px;margin:10px 11px 18px;background-image:url('${esc(url)}');background-size:cover;background-position:center"
+      onclick="${b.link?`window.open('${esc(b.link)}','_blank','noopener')`:''}">
+      <div style="position:absolute;left:0;right:0;bottom:0;z-index:2;padding:14px;text-align:left;color:#fff;font-weight:900;text-shadow:0 2px 4px #000">
+        ${b.title?`<div style="font-size:18px">${esc(b.title)}</div>`:""}
+      </div>
+    </div>`;
+}
+function categoryImage(c){
+  const url=firstImage(c);
+  if(url){
+    return `<img src="${esc(url)}" alt="${esc(categoryName(c))}"
+      loading="lazy"
+      onerror="this.parentElement.innerHTML='<div class=category-empty>${esc(categoryName(c))}</div>'">`;
+  }
+  /* IMPORTANT: no generated/fake image fallback */
+  return `<div class="category-empty">${esc(categoryName(c))}</div>`;
+}
+function home(){
+  const cats=values("categories").sort((a,b)=>categoryName(a).localeCompare(categoryName(b)));
+  const banner=getHomeBanner();
+  const bannerUrl=banner?firstImage(banner):"";
+  const mega=cache.homeMegaphone||{};
+  const noticeText=(mega.enabled!==false && String(mega.message||"").trim())
+    ? mega.message
+    : (values("notifications").filter(n=>n&&n.active!==false)
+      .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0))[0]?.message
+      || "CLICK HERE TO READ RULES ‼️ Every Player Of FreeFire Game Name (Not User) Per Day Match Join Limit Is 10");
+
+  document.getElementById("app").innerHTML=`
+    <div class="gza-home-screen">
+      ${homeHeader()}
+      <div class="gza-notice">
+        <div class="gza-notice-icon">📣</div>
+        <div class="gza-notice-text" onclick="${mega.enabled!==false&&mega.link?`window.open('${esc(mega.link)}','_blank','noopener')`:''}">${esc(noticeText)}</div>
+      </div>
+      <div class="gza-home-banner">
+        ${bannerUrl?`<img src="${esc(bannerUrl)}" alt="Banner" onerror="this.style.display='none'">`:
+        `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900">Banner</div>`}
+        <button class="more" onclick="${banner&&banner.link?`window.open('${esc(banner.link)}','_blank','noopener')`:''}">More details</button>
+        
+      </div>
+      <div class="gza-my-title">My Matches</div>
+      <div class="gza-my-matches">
+        <button class="gza-my-card" onclick="myMatches('ongoing')"><span class="gza-my-icon green">⟳</span><span>Ongoing</span></button>
+        <button class="gza-my-card" onclick="myMatches('upcoming')"><span class="gza-my-icon blue">▣</span><span>Upcoming</span></button>
+        <button class="gza-my-card" onclick="myMatches('completed')"><span class="gza-my-icon check">✓</span><span>Completed</span></button>
+      </div>
+      <div class="gza-esports-title">Esports Games</div>
+      <div class="gza-home-games">
+        ${cats.length?cats.map(c=>{
+          const url=firstImage(c);
+          const count=values("tournaments").filter(t=>categoryMatchesValue(t.category||t.categoryName||t.categoryId,c.id))
+            .reduce((sum,t)=>sum+joinedForTournament(t.id).length,0);
+          return `<button class="gza-game-card" onclick="category('${esc(c.id)}')">
+            ${url?`<img src="${esc(url)}" alt="${esc(categoryName(c))}" loading="lazy" onerror="this.style.display='none'">`
+            :`<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900">${esc(categoryName(c))}</div>`}
+            <span class="game-name">${esc(categoryName(c))}</span><span class="game-count">${count}</span>
+          </button>`;
+        }).join(""):`<div style="grid-column:1/-1;color:#fff;text-align:center;padding:40px">No esports categories yet.</div>`}
+      </div>
+    </div>
+    ${bottom()}
+  `;
+}
+
+/* ---------------- Categories / tournaments ---------------- */
+
+function category(id){
+  currentCategoryId=String(id);
+  currentTab="upcoming";
+  renderCategory();
+}
+function tab(id,t){
+  currentCategoryId=String(id);
+  currentTab=t;
+  renderCategory();
+}
+function tournamentImage(t){
+  const url=firstImage(t);
+  if(url)return `<div class="tournament-img"><img src="${esc(url)}" alt="${esc(tournamentName(t))}" loading="lazy"
+    onerror="this.parentElement.classList.add('no-image');this.parentElement.innerHTML='GEN Z ARENA'"></div>`;
+  return `<div class="tournament-img no-image">GEN Z ARENA</div>`;
+}
+function tournamentCard(t){
+  const participants=joinedForTournament(t.id).length;
+  const limit=Number(t.limit||t.playerLimit||t.slots||0);
+  const pct=limit?Math.min(100,Math.round(participants/limit*100)):0;
+  const state=normalizeStatus(t.status);
+  const img=firstImage(t);
+  const entry=Number(t.fee||t.entryFee||t.entryCoins||0);
+  const prize=Number(t.prizePool||t.prize||0);
+  return `<div class="gza-contest">
+    <div class="gza-contest-image ${img?'':'noimg'}">
+      ${img?`<img src="${esc(img)}" alt="${esc(tournamentName(t))}" loading="lazy"
+        onerror="this.parentElement.classList.add('noimg');this.parentElement.innerHTML='GEN Z ARENA'">`
+        :"GEN Z ARENA"}
+    </div>
+    <div class="gza-contest-info">
+      <div class="gza-contest-title">${esc(tournamentName(t))}</div>
+      <div class="gza-contest-id">#${esc(t.id)}</div>
+      <div class="gza-contest-time">Time : ${esc(t.date||"")} ${esc(t.time||"")}</div>
+      <div class="gza-info-grid">
+        <div>PRIZE POOL<b>🪙 ${prize}</b></div>
+        <div>PER KILL<b>${t.perKillEnabled===false?"OFF":"🪙 "+Number(t.perKill||t.killReward||0)}</b></div>
+        <div>ENTRY COINS<b>🪙 ${entry}</b></div>
+        <div>TYPE<b>${esc(t.type||t.matchType||"BATTLE ROYAL")}</b></div>
+        <div>ENTRY PER PLAYER<b>${Number(t.playersPerTeam||1)}</b></div>
+        <div>MAP<b>${esc(t.map||"BERMUDA")}</b></div>
+      </div>
+      <div class="gza-progress"><span style="width:${pct}%"></span></div>
+      <div class="gza-contest-bottom">
+        <span>${limit?Math.max(0,limit-participants)+" Spot Left":participants+" Joined"}</span>
+        <span>${participants}/${limit||"—"}</span>
+        <button class="gza-join-small ${(state!=="resulted"&&state!=="cancelled"&&state!=="deleted"&&myJoinedTournament(t.id))?"joined":""}" onclick="details('${esc(t.id)}')">${state==="resulted"||state==="cancelled"||state==="deleted"?"View":(myJoinedTournament(t.id)?"Joined ✓ 🔒":"Join")}</button>
+      </div>
+    </div>
+  </div>`;
+}
+function categoryMatchesValue(value,categoryId){
+  const c=cache.categories?.[String(categoryId)]||{};
+  return catMatches(value,categoryId)
+    || catMatches(value,c.name)
+    || catMatches(value,c.title)
+    || catMatches(value,c.label);
+}
+function matchCard(m){
+  const linkedTournament=cache.tournaments?.[String(m.tournamentId||"")]||{};
+  const name=m.name||m.title||m.id||"Match";
+  const image=firstImage(m);
+  const limit=Number(linkedTournament.limit||linkedTournament.playerLimit||linkedTournament.slots||0);
+  const participants=joinedForTournament(m.tournamentId||"").length;
+  const pct=limit?Math.min(100,Math.round(participants/limit*100)):0;
+  const state=normalizeStatus(m.status);
+  return `<div class="tournament-card">
+    ${image?`<div class="tournament-img"><img src="${esc(image)}" alt="${esc(name)}" loading="lazy" onerror="this.parentElement.classList.add('no-image');this.parentElement.innerHTML='GEN Z ARENA'"></div>`:`<div class="tournament-img no-image">GEN Z ARENA</div>`}
+    <div class="tournament-body">
+      <div class="t-name">${esc(name)}</div>
+      <div class="t-id">Match ID: ${esc(m.id)}</div>
+      <div class="t-meta">
+        <div class="meta-box">Date & Time<b>${esc(m.time||m.date||"")}</b></div>
+        <div class="meta-box">Status<b><span class="status-pill">${esc(m.status||"Upcoming")}</span></b></div>
+        <div class="meta-box">Prize Pool<b>🪙 ${Number(m.prizePool||m.prize||0)}</b></div>
+        <div class="meta-box">Slots<b>${participants}/${limit||"—"}</b></div>
+      </div>
+      <div class="progress"><span style="width:${pct}%"></span></div>
+      <div class="t-bottom">
+        <div class="spots">${limit?Math.max(0,limit-participants)+" spots left":(linkedTournament.name||m.tournamentName||"Match")}</div>
+        ${m.tournamentId?`<button class="join-btn ${state==='resulted'?'view':''}" onclick="details('${esc(m.tournamentId)}')">View</button>`:`<button class="join-btn view" onclick="simple('Match')">View</button>`}
+      </div>
+    </div>
+  </div>`;
+}
+function tournamentHiddenForUser(t){
+  const s=statusNorm(t?.status);
+  if(t?.deleted===true||t?.cancelled===true||s==="deleted"||s==="cancelled"||s==="canceled"||s==="cancel") return true;
+  const tid=String(t?.id||t?.tournamentId||"");
+  const linked=values("matches").filter(m=>String(m.tournamentId||m.tournamentID||m.tournament_id||"")===tid);
+  if(linked.some(m=>m?.deleted===true||m?.cancelled===true)) return linked.every(m=>m?.deleted===true||m?.cancelled===true||["deleted","cancelled","canceled","cancel"].includes(statusNorm(m.status)));
+  if(linked.length && linked.every(m=>["deleted","cancelled","canceled","cancel"].includes(statusNorm(m.status)))) return true;
+  return false;
+}
+
+function renderCategory(){
+  const c=cache.categories?.[currentCategoryId];
+  const list=values("tournaments").filter(t=>
+    !tournamentHiddenForUser(t) &&
+    categoryMatchesValue(t.category||t.categoryName||t.categoryId,currentCategoryId) &&
+    normalizeStatus(t.status)===currentTab
+  ).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+
+  document.getElementById("app").innerHTML=`
+    <div class="gza-category-header">
+      <button class="back" onclick="gzaBack()">‹</button>
+      <h1>${esc(c?categoryName(c):currentCategoryId)} Contests</h1>
+    </div>
+    <div class="gza-tabs2">
+      <button class="gza-tab2 ${currentTab==="ongoing"?"active":""}" onclick="tab('${esc(currentCategoryId)}','ongoing')">Ongoing</button>
+      <button class="gza-tab2 ${currentTab==="upcoming"?"active":""}" onclick="tab('${esc(currentCategoryId)}','upcoming')">Upcoming</button>
+      <button class="gza-tab2 ${currentTab==="resulted"?"active":""}" onclick="tab('${esc(currentCategoryId)}','resulted')">Resulted</button>
+    </div>
+    <div class="gza-contest-list">
+      ${list.length?list.map(tournamentCard).join(""):`<div style="color:#fff;text-align:center;padding:60px 10px">No ${esc(currentTab)} contests.</div>`}
+    </div>`;
+}
+
+/* ---------------- Contest details ---------------- */
+
+
+let gzaCountdownInterval=null;
+function gzaStartCountdown(t){
+  if(gzaCountdownInterval) clearInterval(gzaCountdownInterval);
+  const el=document.getElementById("gzaTimer");
+  if(!el)return;
+  const raw=t.startAt||t.startDateTime||t.dateTime||t.date||t.time;
+  let target=NaN;
+  if(typeof raw==="number") target=raw;
+  else if(raw) target=Date.parse(String(raw).replace(" ","T"));
+  if(Number.isNaN(target)){
+    el.textContent=t.timeLeft||"—";
+    return;
+  }
+  const tick=()=>{
+    const diff=target-Date.now();
+    if(diff<=0){
+      el.textContent="00:00:00";
+      clearInterval(gzaCountdownInterval);
+      return;
+    }
+    const total=Math.floor(diff/1000),d=Math.floor(total/86400),h=Math.floor(total%86400/3600),m=Math.floor(total%3600/60),s=total%60;
+    el.textContent=(d?String(d).padStart(2,"0")+":":"")+String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  };
+  tick();
+  gzaCountdownInterval=setInterval(tick,1000);
+}
+
+function details(id){
+  const t=cache.tournaments?.[id];
+  if(!t){simple("Tournament not found");return;}
+  currentTournament={id,...t};
+  const joined=joinedForTournament(id);
+  const rules=Array.isArray(t.rules)?t.rules:String(t.rules||"").split(/\n+/).filter(Boolean);
+  const state=normalizeStatus(t.status);
+  const img=firstImage(t);
+  const entry=Number(t.fee||t.entryFee||t.entryCoins||0);
+  const prize=Number(t.prizePool||t.prize||0);
+  const results=values("results").filter(r=>String(r.tournamentId||"")===String(id));
+
+  document.getElementById("app").innerHTML=`
+    <div class="gza-details-header">
+      <button class="back" onclick="gzaBack()">‹</button>
+      <h1>Contest Details #${esc(id)}</h1>
+    </div>
+    <div class="gza-details-bg">
+      <div class="gza-details-hero">
+        ${img?`<img src="${esc(img)}" alt="${esc(tournamentName(t))}">`:`<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900">GEN Z ARENA</div>`}
+      </div>
+
+      <div class="gza-time-left">Time Left: <span id="gzaTimer">Calculating…</span></div>
+
+      <div class="gza-details-title">${esc(tournamentName(t))} — ID#${esc(id)}</div>
+
+      <div class="gza-chip-grid">
+        <div class="gza-chip">Team: <b>${esc(t.matchType||t.type||"Solo")}</b></div>
+        <div class="gza-chip">Mode: <b>${esc(t.mode||"BATTLE ROYAL")}</b></div>
+        <div class="gza-chip">Map: <b>${esc(t.map||"BERMUDA")}</b></div>
+        <div class="gza-chip">Match Type: <b>Coins</b></div>
+        <div class="gza-chip">Entry Coins: 🪙 <b>${entry}</b></div>
+        <div class="gza-chip">Schedule: <b>${esc(t.date||"")} ${esc(t.time||"")}</b></div>
+      </div>
+
+      <div class="gza-section-label">Prize Details</div>
+      <div class="gza-prize-box">
+        🪙 ${prize} reward coins${t.prizeDetails?`<div style="margin-top:8px">${esc(t.prizeDetails)}</div>`:""}
+      </div>
+
+      <div class="gza-section-label">About this Match</div>
+      <div class="gza-rules-box">
+        <h2>Rules and Regulations</h2>
+        ${rules.length?`<ul>${rules.map(r=>`<li>${esc(r)}</li>`).join("")}</ul>`:`<div style="padding:10px">Follow the rules shown for this tournament.</div>`}
+      </div>
+
+      ${renderMatchCredentials(id)}
+
+      <button class="gza-alljoin-toggle" type="button" onclick="viewAllJoiningPlayers()">👥 All Joiners <span>›</span></button>
+
+      ${state==="deleted"
+        ? `<div class="gza-section-label">Tournament Removed</div>
+           <div class="gza-prize-box" style="border-left:4px solid #777">
+             <b>🗑️ Reason</b><div style="margin-top:8px;font-weight:600">${esc(t.deletionReason||"Tournament removed.")}</div>
+             ${t.deletedAt?`<div class="muted" style="margin-top:8px">Removed: ${esc(new Date(Number(t.deletedAt)).toLocaleString())}</div>`:""}
+           </div>`
+        : state==="cancelled"
+        ? `<div class="gza-section-label">Tournament Cancelled</div>
+           <div class="gza-prize-box" style="border-left:4px solid #d9534f">
+             <b>⚠ Cancellation Reason</b><div style="margin-top:8px;font-weight:600">${esc(t.cancellationReason||"Tournament cancelled.")}</div>
+             ${t.cancelledAt?`<div class="muted" style="margin-top:8px">Cancelled: ${esc(new Date(Number(t.cancelledAt)).toLocaleString())}</div>`:""}
+           </div>`
+        : state==="resulted"
+        ? `<div class="gza-section-label">Published Results</div>
+           <div style="padding:0 20px">${results.length?results.map(r=>`
+             <div class="result-row">
+               <b>${recordNameHtml(r,"Player",true)}</b>
+               <div style="margin-top:6px">Position: ${esc(r.position||"—")} · Reward: 🪙 ${Number(r.prize||r.winningCoins||0)}</div>
+             </div>`).join(""):`<div class="result-row">No result published yet.</div>`}</div>`
+        : myJoinedTournament(id)
+        ? `<button class="gza-fixed-join joined" disabled>You are Joined ✓ 🔒</button>`
+        : `<button class="gza-fixed-join" onclick="positions()">Join Match</button>`}
+
+      <div style="height:12px"></div>
+    </div>`;
+  gzaStartCountdown(t);
+}
+
+/* ---------------- Joining ----------------
+   This version intentionally has NO payment/deposit/withdrawal flow.
+   Joining is recorded as a tournament participant in RTDB.
+-------------------------------------------- */
+
+function getJoinings(){
+  return currentTournament ? joinedForTournament(currentTournament.id) : [];
+}
+
+function renderDetailsSlotGrid(joined,totalSlots){
+  const byPosition={};
+  joined.forEach(p=>{
+    const pos=String(p.position||p.slot||"").trim();
+    if(pos && !byPosition[pos]) byPosition[pos]=p;
+  });
+  return Array.from({length:Math.max(1,totalSlots)},(_,i)=>{
+    const n=i+1;
+    const p=byPosition[String(n)];
+    if(p){
+      const player=p.inGameName||p.ign||p.name||"Joined Player";
+      const team=teamLabel(p.teamName||p.team||"A");
+      return `<div class="gza-slot-card joined-slot">
+        <div class="slot-label">SLOT ${n}${team?` · ${esc(team)}`:""}</div>
+        <div class="slot-player slot-joined">🟢 ${esc(player)}</div>
+      </div>`;
+    }
+    return `<div class="gza-slot-card open-slot">
+      <div class="slot-label">SLOT ${n}</div>
+      <div class="slot-player slot-open">Available</div>
+    </div>`;
+  }).join("");
+}
+
+function positions(){
+  if(!currentTournament)return;
+  if(myJoinedTournament(currentTournament.id)){
+    gzaNotify("You are already joined in this tournament.","info");
+    details(currentTournament.id);
+    return;
+  }
+  const joinings=getJoinings();
+  const limit=Number(currentTournament.limit||currentTournament.playerLimit||currentTournament.slots||0);
+  if(normalizeStatus(currentTournament.status)!=="upcoming"){alert("This tournament is not open for joining.");return;}
+
+  document.getElementById("app").innerHTML=`
+    <div class="gza-details-header"><button class="back" onclick="gzaBack()">‹</button><h1>Join Match</h1></div>
+    <div style="background:#071b34;min-height:calc(100vh - 70px);padding:20px 0 100px">
+      <div style="padding:0 20px;color:#fff">
+        <div style="font-size:20px;font-weight:900;margin:4px 0 12px">Select Your Team</div>
+        <div class="position-list" style="display:grid;gap:10px">
+          ${tournamentTeams(currentTournament).map(team=>`
+            <label class="position-item" style="background:#fff">
+              <span>${teamLabel(team)}</span>
+              <input type="radio" name="teamChoice" value="${team}" ${selectedTeam===team?"checked":""} onchange="selectedTeam='${team}'">
+            </label>`).join("")}
+        </div>
+        <div style="font-size:20px;font-weight:900;margin:18px 0 10px">Select Join Position</div>
+        <div class="position-list">
+          ${(()=>{
+            const takenPositions=new Set(joinings.map(p=>String(p.position||p.slot||"")));
+            if(selectedPosition && takenPositions.has(String(selectedPosition))) selectedPosition=null;
+            return Array.from({length:Math.min(limit||50,50)},(_,i)=>{
+              const n=i+1;
+              const isTaken=takenPositions.has(String(n));
+              if(isTaken){
+                return `<label class="position-item disabled">
+                  <span>Position ${n}</span>
+                  <span style="justify-self:end;font-size:12px;font-weight:900;color:#c0392b">Booked</span>
+                </label>`;
+              }
+              return `<label class="position-item" style="background:#fff">
+                <span>Position ${n}</span>
+                <input type="radio" name="position" ${selectedPosition===n?"checked":""} onchange="selectedPosition=${n}">
+              </label>`;
+            }).join("");
+          })()}
+        </div>
+        <button class="join-now" style="margin-top:18px;width:100%" onclick="positionNext()">Continue</button>
+      </div>
+
+      <div style="padding:0 20px;color:#fff;margin-top:22px">
+        <button class="join-now" style="width:100%;background:#fff;color:#111" onclick="viewAllJoiningPlayers()">👥 View All Joining Players</button>
+      </div>
+    </div>`;
+}
+function viewAllJoiningPlayers(){
+  if(!currentTournament){
+    gzaNotify("Tournament details are not available.","error");
+    return;
+  }
+
+  const rows=getJoinings().slice().sort((a,b)=>{
+    const pa=Number(a.position||a.slot||999999), pb=Number(b.position||b.slot||999999);
+    if(pa!==pb)return pa-pb;
+    return String(a.team||a.teamName||"").localeCompare(String(b.team||b.teamName||""));
+  });
+  const teams=tournamentTeams(currentTournament);
+  const title="All Joinings";
+
+  document.getElementById("app").innerHTML=`
+    <div class="gza-alljoin-header">
+      <button class="back" onclick="gzaBack()">‹</button>
+      <h1>${title}</h1>
+    </div>
+    <div style="background:#071b34;min-height:calc(100vh - 70px);padding:0 0 100px">
+      <div class="gza-join-table-wrap" style="margin:0;border-radius:0 0 15px 15px;padding:24px 10px 18px">
+        <table class="gza-join-table">
+          <thead>
+            <tr><th>Team No.</th><th>Pos.</th><th>In Game Name</th><th>In Game Id</th></tr>
+          </thead>
+          <tbody>
+            ${rows.length ? rows.map(p=>`
+              <tr>
+                <td>${esc(teamLabel(p.teamName||p.team||"A").replace(/^TEAM\s*/i,""))}</td>
+                <td>${esc(p.position||p.slot||"—")}</td>
+                <td>${recordNameHtml(p,"Player",true)}</td>
+                <td>${esc(p.inGameUid||p.uidGame||p.gameId||"—")}</td>
+              </tr>`).join("") : `
+              <tr><td colspan="4" style="text-align:center;padding:45px 10px;color:#777">No players joined yet.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:0 20px 25px;color:#aeb7d4;font-size:12px;text-align:center">
+        ${teams.length===1 ? "Solo Match • Team A only" : "Team Match • Team A & Team B"}
+      </div>
+    </div>
+    <div class="gza-alljoin-actions">
+      <button class="mine" onclick="positions()">MY ENTRIES</button>
+      <button class="show" onclick="gzaBack()">BACK</button>
+    </div>`;
+}
+function positionNext(){
+  if(!selectedTeam){alert("Please select Team A or Team B.");return;}
+  if(!selectedPosition){alert("Please select a join position.");return;}
+  selected();
+}
+function selected(){
+  const u=currentUserData();
+  const balance=Number(u.coins||0);
+  const entry=Number(currentTournament?.fee||currentTournament?.entryFee||currentTournament?.entryCoins||0);
+  document.getElementById("app").innerHTML=`
+    <div class="gza-details-header"><button class="back" onclick="gzaBack()">‹</button><h1>Joining Match</h1></div>
+    <div class="gza-joining-bg">
+      <div class="gza-wallet-summary">
+        <div class="gza-wallet-icon">👛</div>
+        <div class="gza-pay-lines">
+          Your Current Balance : 🪙${balance}<br>
+          Entry Coins Per Person : 🪙${entry}<br>
+          Required Coins : 🪙${entry}
+        </div>
+      </div>
+
+      <div class="gza-selected">
+        <h2>Selected Position</h2>
+        <div class="gza-selected-grid">
+          <div><b>Team</b><span>Team ${esc(selectedPosition)}</span></div>
+          <div><b>Position</b><span>1</span></div>
+          <div><b>InGameName</b>
+            ${gameName?`<span>${esc(gameName)}</span>`:`<button class="gza-add-info" onclick="gameDetails()">Add info</button>`}
+          </div>
+        </div>
+      </div>
+
+      <div class="gza-join-actions">
+        <button class="cancel" onclick="positions()">CANCEL</button>
+        <button class="join" onclick="${gameName?"confirmJoin()":"gameDetails()"}">JOIN</button>
+      </div>
+      <div class="gza-note">Note - Please enter your In Game Username/Name and Game ID correctly.</div>
+    </div>`;
+}
+function gameDetails(){
+  document.getElementById("app").innerHTML=`
+    <div class="gza-details-header"><button class="back" onclick="gzaBack()">‹</button><h1>Joining Match</h1></div>
+    <div class="gza-joining-bg">
+      <div class="gza-wallet-summary">
+        <div class="gza-wallet-icon">👛</div>
+        <div class="gza-pay-lines">
+          Your Current Balance : 🪙${Number(currentUserData().coins||0)}<br>
+          Entry Coins Per Person : 🪙${Number(currentTournament?.fee||currentTournament?.entryFee||currentTournament?.entryCoins||0)}<br>
+          Required Coins : 🪙${Number(currentTournament?.fee||currentTournament?.entryFee||currentTournament?.entryCoins||0)}
+        </div>
+      </div>
+      <div class="gza-game-form">
+        <h2>Player Game Details</h2>
+        <input id="gameName" placeholder="inGameName" value="${esc(gameName)}">
+        <input id="gameId" placeholder="inGameId" value="${esc(gameId)}">
+        <div style="line-height:1.5;margin-bottom:16px">Make sure you have entered correct inGameName & inGameId</div>
+        <div class="gza-join-actions" style="padding:0;gap:20px">
+          <button class="cancel" onclick="selected()">CANCEL</button>
+          <button class="join" onclick="saveGame()">SAVE</button>
+        </div>
+      </div>
+    </div>`;
+}
+function saveGame(){
+  gameName=document.getElementById("gameName").value.trim();
+  gameId=document.getElementById("gameId").value.trim();
+  if(!gameName){alert("Enter In Game Name");return;}
+  if(!gameId){alert("Enter In Game ID");return;}
+  selected();
+}
+async function confirmJoin(){
+  if(!currentTournament || !selectedPosition || !gameName || !gameId)return;
+  if(!currentUser){
+    gzaNotify("Please login before joining.","error");
+    return;
+  }
+  if(userIsBlocked()){
+    gzaNotify("Your account is blocked.","error");
+    return;
+  }
+
+  const tid=String(currentTournament.id);
+  const u=currentUserData();
+  const balance=Number(u.coins||0);
+  const entry=Number(currentTournament.fee||currentTournament.entryFee||currentTournament.entryCoins||0);
+
+  if(entry<0){
+    gzaNotify("Invalid entry coin value.","error");
+    return;
+  }
+  if(entry>0 && balance<entry){
+    gzaNotify(`Insufficient coins. Required: ${entry} 🪙 | Available: ${balance} 🪙`,"error");
+    wallet();
+    return;
+  }
+
+  const existing=joinedForTournament(tid).find(
+    p=>String(p.userId||p.uid||"")===String(currentUser.uid)
+  );
+  if(existing){
+    gzaNotify("You are already joined in this tournament.","info");
+    return;
+  }
+
+  const limit=Number(currentTournament.limit||currentTournament.playerLimit||currentTournament.slots||0);
+  if(limit && joinedForTournament(tid).length>=limit){
+    gzaNotify("All slots are filled.","info");
+    positions();
+    return;
+  }
+
+  const occupied=joinedForTournament(tid).some(
+    p=>String(p.position||p.slot||"")===String(selectedPosition)
+  );
+  if(occupied){
+    gzaNotify("This position is already joined.","info");
+    positions();
+    return;
+  }
+
+  const now=Date.now();
+  const joinData={
+    userId:currentUser.uid,
+    uid:currentUser.uid,
+    tournamentId:tid,
+    tournamentName:tournamentName(currentTournament),
+    categoryId:currentTournament.categoryId||currentTournament.category||currentCategoryId||"",
+    inGameName:gameName,
+    ign:gameName,
+    inGameUid:gameId,
+    uidGame:gameId,
+    position:selectedPosition,
+    slot:selectedPosition,
+    team:selectedTeam,
+    teamName:`Team ${selectedTeam}`,
+    entryCoins:entry,
+    entryType:"coins",
+    nonCash:true,
+    status:"joined",
+    createdAt:now,
+    joinedAt:now
+  };
+
+  let debited=false;
+  try{
+    // Atomic wallet debit. The transaction prevents two simultaneous joins
+    // from spending the same coins.
+    if(entry>0){
+      const walletRef=db.ref("users/"+currentUser.uid+"/coins");
+      const tx=await walletRef.transaction(currentCoins=>{
+        const n=Number(currentCoins||0);
+        if(n<entry)return;
+        return n-entry;
+      });
+      if(!tx.committed){
+        gzaNotify("Insufficient coins. Your wallet balance was not changed.","error");
+        return;
+      }
+      debited=true;
+      const newBalance=Number(tx.snapshot.val()||0);
+      if(cache.users?.[currentUser.uid]){
+        cache.users[currentUser.uid].coins=newBalance;
+      }
+    }
+
+    const newRef=db.ref("tournamentParticipants").push();
+    await newRef.set(joinData);
+
+    const historyRef=db.ref("joinHistory").push();
+    await historyRef.set({
+      ...joinData,
+      joinId:newRef.key,
+      historyType:"match_join",
+      balanceAfter:entry>0 ? Number(cache.users?.[currentUser.uid]?.coins||0) : balance
+    });
+
+    if(entry>0){
+      await db.ref("coinTransactions").push({
+        uid:currentUser.uid,type:"match_join",amount:-entry,
+        balanceAfter:Number(cache.users?.[currentUser.uid]?.coins||0),
+        tournamentId:tid,tournamentName:tournamentName(currentTournament),
+        joinId:newRef.key,createdAt:now
+      });
+    }
+
+    gzaNotify(`Tournament joined successfully. ${entry>0?entry+" coins deducted from your wallet.":""}`,"success");
+    selectedPosition=null;
+    selectedTeam="";
+    gameName="";
+    gameId="";
+    // GEN Z ARENA FIX: after a successful join, go straight to Home instead
+    // of back into the tournament details page.
+    home();
+  }catch(e){
+    console.error(e);
+
+    // If the wallet was debited but participant/history creation failed,
+    // restore exactly the entry amount.
+    if(debited && entry>0){
+      try{
+        const walletRef=db.ref("users/"+currentUser.uid+"/coins");
+        await walletRef.transaction(currentCoins=>Number(currentCoins||0)+entry);
+        if(cache.users?.[currentUser.uid]){
+          cache.users[currentUser.uid].coins=Number(cache.users[currentUser.uid].coins||0)+entry;
+        }
+      }catch(refundError){
+        console.error("Wallet refund failed:",refundError);
+      }
+    }
+
+    gzaNotify("Join failed. Your wallet was not charged if the join could not be completed.","error");
+  }
+}
+function myMatches(type){
+  const uid=currentUser?.uid;
+  const joined=uid ? values("tournamentParticipants").filter(p=>String(p.userId||p.uid||"")===String(uid)) : [];
+  const ids=new Set(joined.map(p=>String(p.tournamentId||"")));
+  const list=values("tournaments").filter(t=>{
+    if(!ids.has(String(t.id)))return false;
+    const s=normalizeStatus(t.status);
+    if(type==="completed")return s==="resulted";
+    if(type==="cancelled")return s==="cancelled"||s==="deleted";
+    return s===type;
+  });
+  document.getElementById("app").innerHTML=`
+    ${innerHeader(type==="ongoing"?"My Ongoing Matches":type==="upcoming"?"My Upcoming Matches":type==="cancelled"?"My Cancelled Matches":"My Completed Matches")}
+    <div class="tournament-list">
+      ${list.length ? list.map(t=>{
+        const s=normalizeStatus(t.status);
+        const reasonBox=s==="deleted"
+          ? `<div class="gza-prize-box" style="border-left:4px solid #777;margin-top:8px"><b>🗑️ Reason</b><div style="margin-top:6px;font-weight:600">${esc(t.deletionReason||"Tournament removed.")}</div></div>`
+          : s==="cancelled"
+          ? `<div class="gza-prize-box" style="border-left:4px solid #d9534f;margin-top:8px"><b>⚠ Reason</b><div style="margin-top:6px;font-weight:600">${esc(t.cancellationReason||"Tournament cancelled.")}</div></div>`
+          : "";
+        return `<div style="margin-bottom:14px">${tournamentCard(t)}${reasonBox}${renderMatchCredentials(t.id)}</div>`;
+      }).join("") :
+        `<div class="loading">No matches found.</div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+
+/* ---------------- Leaderboard ---------------- */
+
+function leaderboard(){
+  const staffRecords=values("staff");
+  const staffUids=new Set(staffRecords.map(s=>String(s.uid||s.userUid||s.userId||"").trim()).filter(Boolean));
+  const myUid=String(currentUser?.uid||"").trim();
+  const users=values("users")
+    .filter(u=>{
+      const uid=String(u.id||u.uid||u.userId||"").trim();
+      const uidNorm=statusNorm(uid);
+      const role=statusNorm(u.role||u.userRole||u.accountType||u.type);
+      const staffId=statusNorm(u.staffId||u.staffID||u.staffCode);
+      const email=statusNorm(u.email);
+      const name=statusNorm(u.name||u.username||u.inGameName||"");
+      const displayId=statusNorm(u.id||u.uid||u.userId||"");
+      const adminFlag=u.isAdmin===true || statusNorm(u.isAdmin)==="true";
+      const staffFlag=u.isStaff===true || statusNorm(u.isStaff)==="true";
+      const knownMainStaff=/^staff00[1-5]$/.test(uidNorm)||/^staff00[1-5]$/.test(staffId)||/^staff00[1-5]$/.test(displayId);
+      const anyStaffId=/^staff\d+$/.test(uidNorm)||/^staff\d+$/.test(staffId)||/^staff\d+$/.test(displayId);
+      return !staffUids.has(uid) && !adminFlag && !staffFlag && !knownMainStaff && !anyStaffId &&
+        !role.includes("admin") && !role.includes("staff") && !staffId.startsWith("staff") &&
+        email!=="genzarena@admin.com" && !email.startsWith("staff") && !name.startsWith("staff");
+    })
+    .map(u=>({
+      uid:String(u.id||u.uid||u.userId||""),
+      name:u.name||u.ign||u.username||u.inGameName||"Player",
+      coins:Number(u.coins||u.points||0),
+      sub:statusNorm(u.subscription||u.subscriptionStatus)==="active" ||
+           statusNorm(u.isSubscribed)==="true" || u.subscribed===true
+    }))
+    .sort((a,b)=>b.coins-a.coins);
+
+  const myIndex=users.findIndex(u=>u.uid===myUid);
+  const shown=users.slice(0,50);
+  if(myIndex>=50 && myIndex!==-1) shown.push(users[myIndex]);
+
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Leaderboard")}
+    <div class="leader-page">
+      <div class="gza-leader-hero-title"><span class="gza-web-mark">🕸️</span><span>🏆 TOP PLAYERS</span><span class="gza-web-mark flip">🕸️</span></div>
+      ${users.length ? shown.map((p,i)=>{
+        const realRank=users.findIndex(x=>x.uid===p.uid)+1;
+        const isMe=p.uid===myUid;
+        return `
+        <div class="leader-card ${isMe?"me":""}">
+          <div class="rank">${realRank===1?"🥇":realRank===2?"🥈":realRank===3?"🥉":"#"+realRank}</div>
+          <div>
+            <div class="player-name ${p.sub?"subscribed subscriber-name":""}">${p.sub?premiumNameHtml(p.name,{subscriptionStatus:"active"},true):esc(p.name)} ${isMe?'<span class="you-mini">YOU</span>':""}</div>
+            ${p.sub?'<div class="gza-sub-feature">⭐ Premium member</div>':""}
+          </div>
+          <div class="coins">🪙 ${p.coins}</div>
+        </div>`;
+      }).join("") : `<div class="loading">No leaderboard data yet.</div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+/* ---------------- Subscription ---------------- */
+
+function subscription(){
+  const plans=values("subscriptions")
+    .filter(s=>statusNorm(s.status)!=="inactive" && statusNorm(s.status)!=="disabled");
+  const u=currentUser ? (cache.users?.[currentUser.uid]||{}) : {};
+  const active=statusNorm(u.subscription||u.subscriptionStatus)==="active" || statusNorm(u.isSubscribed)==="true" || u.subscribed===true;
+  const expires=Number(u.subscriptionExpiresAt||0);
+
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Subscription")}
+    <div class="subscription-page">
+      <div style="text-align:center;padding:15px 0 20px">
+        <div style="font-size:65px">⭐</div>
+        <div style="font-size:30px;font-weight:900;color:#ffd02e">PREMIUM SUBSCRIPTION</div>
+        <p style="margin-top:8px;color:#e8ebff;font-weight:700">Premium features are shown below.</p>
+        ${active?`<div style="display:inline-block;margin-top:10px;padding:6px 11px;border-radius:20px;background:#ffd02e;color:#392900;font-weight:900;font-size:11px;border:1px solid #ffe88a;box-shadow:0 0 10px #ffd02e55">⭐ ACTIVE${expires?` • DUE DATE: ${new Date(expires).toLocaleDateString()}`:""}</div><div class="gza-sub-benefits"><div class="gza-sub-benefit">✓ Blue verified badge</div><div class="gza-sub-benefit">✨ Name shine highlight</div><div class="gza-sub-benefit">⭐ Premium badge everywhere</div><div class="gza-sub-benefit">🏆 Leaderboard highlight</div></div>`:""}
+      </div>
+      ${plans.length ? plans.map(p=>{
+        const price=Number(p.priceCoins ?? p.coinsPrice ?? p.price ?? 0);
+        const days=Number(p.days||0);
+        return `
+        <div class="plan" style="margin-bottom:12px">
+          <h3>${esc(p.name||"Premium Plan")}</h3>
+          <p style="margin-top:10px">Duration: ${days||"—"} days</p>
+          <p style="margin-top:7px;font-weight:900">🪙 ${price} Coins</p>
+          <button onclick="buySubscription('${esc(p.id)}')">BUY WITH COINS</button>
+        </div>`;
+      }).join("") : `<div class="plan"><b>No subscription plans published yet.</b></div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+
+async function buySubscription(id){
+  if(!currentUser){showAuth("login","Please login first.");return;}
+  const p=cache.subscriptions?.[id];
+  if(!p){alert("Subscription plan is not available right now.");return;}
+  const price=Number(p.priceCoins ?? p.coinsPrice ?? p.price ?? 0);
+  const days=Number(p.days||0);
+  if(price<0 || !Number.isFinite(price)){alert("Subscription plan is not configured correctly.");return;}
+  if(days<=0){alert("Subscription duration is not configured.");return;}
+  const userRef=db.ref("users/"+currentUser.uid);
+  try{
+    let newBalance=0;
+    await userRef.transaction(u=>{
+      if(!u)return u;
+      const balance=Number(u.coins||0);
+      if(balance<price)return;
+      newBalance=balance-price;
+      return {...u,coins:newBalance,subscription:"active",subscriptionStatus:"active",isSubscribed:true,subscribed:true,subscriptionPlan:p.name||"Premium Plan",subscriptionStartedAt:Date.now(),subscriptionExpiresAt:Date.now()+days*86400000,updatedAt:Date.now()};
+    });
+    const snap=await userRef.once("value");
+    const fresh=snap.val()||{};
+    if(Number(fresh.coins||0)!==newBalance || statusNorm(fresh.subscriptionStatus)!=="active"){
+      alert("Not enough coins or the subscription could not be activated.");return;
+    }
+    await db.ref("coinTransactions").push({uid:currentUser.uid,type:"subscription",amount:-price,balanceAfter:newBalance,planId:id,planName:p.name||"Premium Plan",createdAt:Date.now()});
+    alert("Subscription activated successfully.");
+    subscription();
+  }catch(e){console.warn("Subscription purchase error",e);alert("Subscription could not be activated. Please try again.");}
+}
+
+/* ---------------- Wallet / notifications / menu ---------------- */
+
+function wallet(){
+  const u=currentUser ? (cache.users?.[currentUser.uid]||{}) : {};
+  const coins=Number(u.coins||0);
+  const uid=String(currentUser?.uid||"");
+  const winningAmount=values("results")
+    .filter(r=>String(r.uid||r.userId||r.playerUid||"")==uid)
+    .reduce((sum,r)=>sum+Number(r.prize||r.winningCoins||r.coins||0),0);
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("My Wallet")}
+    <div class="simple-page">
+      <div class="simple-card">
+        <h3>🪙 Wallet Balance</h3>
+        <p style="font-size:30px;font-weight:900;margin-top:10px">${coins}</p>
+        <p class="muted" style="margin-top:8px">Current coin balance</p>
+      </div>
+
+      <div class="simple-card">
+        <h3>🏆 Winning Amount</h3>
+        <p style="font-size:30px;font-weight:900;margin-top:10px">🪙 ${winningAmount}</p>
+        <p class="muted" style="margin-top:8px">Only verified winning rewards are eligible for withdrawal.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0">
+        <button class="join-btn" style="width:100%;padding:15px" onclick="deposit()">💳 DEPOSIT</button>
+        <button class="join-btn" style="width:100%;padding:15px" onclick="withdrawalInfo()">💸 WITHDRAWAL</button>
+      </div>
+      <button class="join-btn" style="width:100%;padding:15px;margin-top:10px" onclick="transactionHistory()">📜 TRANSACTION HISTORY</button>
+
+    </div>
+    ${bottom()}
+  `;
+}
+
+function transactionTypeLabel(type){
+  const t=statusNorm(type);
+  const labels={
+    deposit:"DEPOSIT",
+    withdrawal:"WITHDRAWAL",
+    match_join:"MATCH ENTRY",
+    entry:"MATCH ENTRY",
+    subscription:"SUBSCRIPTION",
+    winning:"WINNING REWARD",
+    reward:"REWARD",
+    bonus:"BONUS",
+    refund:"REFUND"
+  };
+  return labels[t]||String(type||"TRANSACTION").replace(/_/g," ").toUpperCase();
+}
+function transactionHistory(){
+  if(!currentUser){showAuth("login","Please login first.");return;}
+  const uid=String(currentUser.uid);
+  const rows=[];
+  const seen=new Set();
+  const add=(key,row)=>{
+    if(!row || String(row.uid||row.userId||row.playerUid||"")!==uid)return;
+    if(seen.has(key))return;
+    seen.add(key); rows.push(row);
+  };
+
+  // Primary wallet ledger written by wallet-related actions/backend.
+  values("coinTransactions").forEach(r=>add("ct:"+r.id,{...r,_source:"ledger"}));
+
+  // Include withdrawal requests when a separate ledger row is not present.
+  values("withdrawalRequests").forEach(r=>add("wd:"+(r.requestId||r.id),{
+    ...r,type:"withdrawal",amount:-Math.abs(Number(r.amount||0)),_source:"withdrawal"
+  }));
+
+  // Include match entries from join history when no ledger row exists.
+  values("joinHistory").forEach(r=>{
+    const amount=Number(r.entryCoins||r.entryFee||0);
+    if(amount>0)add("join:"+(r.joinId||r.id),{
+      ...r,type:"match_join",amount:-amount,_source:"joinHistory",
+      balanceAfter:r.balanceAfter
+    });
+  });
+
+  // Verified result records are shown as winning rewards.
+  values("results").forEach(r=>{
+    const reward=Number(r.prize||r.winningCoins||0);
+    if(reward>0)add("win:"+r.id,{...r,type:"winning",amount:reward,_source:"results"});
+  });
+
+  rows.sort((a,b)=>Number(b.createdAt||b.updatedAt||b.joinedAt||0)-Number(a.createdAt||a.updatedAt||a.joinedAt||0));
+  const html=rows.length?rows.map(r=>{
+    const amount=Number(r.amount||0);
+    const positive=amount>=0;
+    const status=r.status?String(r.status):"completed";
+    const statusText=statusNorm(r.type)==="withdrawal"?withdrawalStatusLabel(status):String(status).toUpperCase();
+    const when=r.createdAt||r.updatedAt||r.joinedAt;
+    const title=transactionTypeLabel(r.type);
+    const ref=r.orderId||r.requestId||r.transactionId||r.joinId||r.id||"—";
+    return `<div class="gza-tx-row">
+      <div class="gza-tx-icon">${positive?"➕":"➖"}</div>
+      <div class="gza-tx-main">
+        <div class="gza-tx-top"><b>${esc(title)}</b><strong class="gza-tx-amount ${positive?"plus":"minus"}">${positive?"+":""}${amount} 🪙</strong></div>
+        <div class="gza-tx-meta">${esc(String(r.description||r.planName||r.tournamentName||r.methodLabel||"")||"Wallet transaction")}</div>
+        <div class="gza-tx-meta">${when?esc(new Date(Number(when)).toLocaleString()):""} · ${esc(statusText)}</div>
+        <div class="gza-tx-ref">ID: ${esc(ref)}</div>
+      </div>
+    </div>`;
+  }).join(""):"<div class=\"muted\" style=\"padding:12px 0\">No transaction history available yet.</div>";
+
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Transaction History")}
+    <div class="simple-page">
+      <div class="simple-card">
+        <h3>📜 Wallet Transaction History</h3>
+        <p class="muted" style="margin-top:7px">Your wallet entries, rewards, withdrawals and other coin activity.</p>
+        <div style="margin-top:12px">${html}</div>
+      </div>
+    </div>${bottom()}`;
+}
+
+function gzaSpinner(text){
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0">
+    <div style="width:34px;height:34px;border:4px solid #e0e0e0;border-top-color:#7b2ff7;border-radius:50%;animation:gzaSpin 0.8s linear infinite"></div>
+    <p class="muted" style="margin:0">${text}</p>
+  </div>
+  <style>@keyframes gzaSpin{to{transform:rotate(360deg)}}</style>`;
+}
+function deposit(){
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Deposit")}
+    <div class="simple-page">
+      <div class="simple-card">
+        <h3>💳 Add Coins</h3>
+        <p class="muted" style="margin-top:8px">Enter an amount to add to your wallet. 1 ₹ = 1 Coin.</p>
+        <input id="depositAmount" type="number" min="10" step="1" placeholder="Enter amount"
+          style="width:100%;margin-top:14px;padding:13px;border-radius:9px;border:1px solid #ccc">
+        <button class="primary-join" style="margin-top:14px" onclick="startDeposit()">PAY & ADD COINS</button>
+        <div id="depositStatusBox" style="margin-top:16px"></div>
+        <div id="depositDebugLog" style="margin-top:14px;padding:10px;background:#111;color:#0f0;font-family:monospace;font-size:11px;border-radius:8px;max-height:220px;overflow:auto;white-space:pre-wrap"></div>
+      </div>
+    </div>${bottom()}`;
+  gzaResumePendingDeposit();
+}
+
+// TEMP DEBUG + FIX: if the ZapUPI payment screen fully navigates away
+// (instead of firing onSuccess/onFailure in-page), we lose the JS callback
+// entirely. So we remember the pending order in localStorage BEFORE opening
+// the payment screen, and resume checking its status whenever the deposit
+// page is opened again (e.g. user comes back after paying).
+function gzaResumePendingDeposit(){
+  try{
+    const raw=localStorage.getItem("gza_pending_deposit");
+    if(!raw) return;
+    const pending=JSON.parse(raw);
+    if(!pending || !pending.orderId) return;
+    if(Date.now()-pending.ts > 30*60*1000){ localStorage.removeItem("gza_pending_deposit"); return; } // older than 30 min, ignore
+    const statusBox=document.getElementById("depositStatusBox");
+    if(!statusBox) return;
+    gzaDebugLog("RESUME: found pending order in storage, resuming status check for "+pending.orderId);
+    statusBox.innerHTML = gzaSpinner("Resuming check for your last payment...");
+    pollDepositStatus(pending.orderId, statusBox);
+  }catch(e){ gzaDebugLog("RESUME failed: "+(e?.message||e)); }
+}
+
+// TEMP DEBUG: writes to on-screen log box (visible on phone, no F12 needed) + console
+function gzaDebugLog(msg){
+  try{
+    console.log("[GZA-DEBUG]",msg);
+    const box=document.getElementById("depositDebugLog");
+    if(box){
+      const line=document.createElement("div");
+      line.textContent="["+new Date().toLocaleTimeString()+"] "+ (typeof msg==="string"?msg:JSON.stringify(msg));
+      box.appendChild(line);
+      box.scrollTop=box.scrollHeight;
+    }
+  }catch(_){}
+}
+async function startDeposit(){
+  const amount = Number(document.getElementById("depositAmount")?.value || 0);
+  if(!amount || amount < 10){
+    gzaNotify("Enter a valid amount (minimum ₹10).","error");
+    return;
+  }
+  if(!currentUser){
+    gzaNotify("Please login first.","error");
+    return;
+  }
+
+  const statusBox = document.getElementById("depositStatusBox");
+  statusBox.innerHTML = gzaSpinner("Please wait, generating your QR...");
+
+  try {
+    // STEP 1: ask OUR backend to reserve a pending order (never generate
+    // order_id or credit coins on the client — see wallet-deposit.js)
+    gzaDebugLog("STEP1: calling create-order at "+WALLET_API_BASE+"/create-order");
+    const res = await fetch(`${WALLET_API_BASE}/create-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uid: currentUser.uid, amount })
+    });
+    const data = await res.json();
+    gzaDebugLog("STEP1 response: "+JSON.stringify(data));
+
+    if(!data.success){
+      statusBox.innerHTML = `<p style="color:#ef7479">${data.message || "Could not create order."}</p>`;
+      return;
+    }
+
+    const orderId = data.order_id;
+    localStorage.setItem("gza_pending_deposit", JSON.stringify({orderId, amount, ts: Date.now()}));
+    statusBox.innerHTML = gzaSpinner("Please wait, opening payment...");
+
+    // STEP 2: set what happens after the ZapUPI payment screen closes
+    ZapUPI.setPaymentCallbacks({
+      onSuccess: function(returnedOrderId){
+        gzaDebugLog("ZapUPI onSuccess fired. returnedOrderId="+returnedOrderId);
+        // This does NOT mean coins are added yet — only that the payment
+        // step finished on ZapUPI's side. Real credit happens server-side
+        // once our webhook receives confirmation from ZapUPI.
+        statusBox.innerHTML = gzaSpinner("Please wait, verifying and crediting your wallet...");
+        pollDepositStatus(orderId, statusBox);
+      },
+      onFailure: function(reason){
+        gzaDebugLog("ZapUPI onFailure fired. reason="+JSON.stringify(reason));
+        statusBox.innerHTML = `<p style="color:#ef7479">Payment failed or cancelled. No coins were deducted.</p>`;
+      }
+    });
+
+    // STEP 3: create the ZapUPI order (this returns a payment URL/QR page)
+    gzaDebugLog("STEP2: calling ZapUPI.createOrder with order_id="+orderId+" amount="+amount);
+    ZapUPI.createOrder(
+      {
+        zap_key: "zapc32f6207bdac8784f4429b9dae40934b",
+        order_id: orderId,
+        amount: String(amount)
+      },
+      {
+        onResponse: function(paymentUrl, returnedOrderId, respData){
+          gzaDebugLog("ZapUPI onResponse fired. paymentUrl="+paymentUrl+" returnedOrderId="+returnedOrderId+" respData="+JSON.stringify(respData));
+          ZapUPI.loadPayment(paymentUrl); // opens the fullscreen QR/payment page
+        },
+        onError: function(err){
+          gzaDebugLog("ZapUPI onError fired: "+JSON.stringify(err));
+          statusBox.innerHTML = `<p style="color:#ef7479">Could not start payment: ${err}</p>`;
+        }
+      }
+    );
+
+  } catch (err) {
+    console.error(err);
+    gzaDebugLog("EXCEPTION in startDeposit: "+(err?.message||err));
+    statusBox.innerHTML = `<p style="color:#ef7479">Something went wrong. Please try again.</p>`;
+  }
+}
+
+// Polls our backend (which reflects the webhook result) until the deposit
+// is confirmed, failed, or flagged — then refreshes the wallet balance.
+function pollDepositStatus(orderId, statusBox, attempt){
+  attempt = attempt || 0;
+  if(attempt > 20){ // ~60s of polling at 3s interval
+    statusBox.innerHTML = `<p class="muted">Still verifying — check "My Wallet" in a minute if this doesn't update.</p>`;
+    return;
+  }
+  gzaDebugLog("STEP3: polling order-status, attempt="+attempt+" orderId="+orderId);
+  fetch(`${WALLET_API_BASE}/order-status/${orderId}`)
+    .then(r => r.json())
+    .then(async data => {
+      gzaDebugLog("order-status response: "+JSON.stringify(data));
+      if(!data.success){
+        statusBox.innerHTML = `<p style="color:#ef7479">Could not verify order.</p>`;
+        return;
+      }
+      if(data.orderStatus === "completed"){
+        localStorage.removeItem("gza_pending_deposit");
+        statusBox.innerHTML = `<p style="color:#22a45b">✅ ${data.amount} coins added to your wallet!</p>`;
+        try{
+          const freshUser=await db.ref("users/"+currentUser.uid).once("value");
+          const freshCoins=Number(freshUser.val()?.coins||0);
+          if(cache.users?.[currentUser.uid]) cache.users[currentUser.uid].coins=freshCoins;
+          await db.ref("coinTransactions").push({
+            uid:currentUser.uid,type:"deposit",amount:Number(data.amount||0),
+            balanceAfter:freshCoins,orderId, status:"completed",createdAt:Date.now()
+          });
+        }catch(logErr){console.warn("Deposit history log failed:",logErr);}
+        gzaNotify(`${data.amount} coins added to your wallet.`,"success");
+        setTimeout(()=>wallet(), 1200);
+      } else if(data.orderStatus === "failed" || data.orderStatus === "mismatch"){
+        localStorage.removeItem("gza_pending_deposit");
+        statusBox.innerHTML = `<p style="color:#ef7479">Payment could not be verified. If money was deducted, contact support with order ID: ${orderId}</p>`;
+      } else {
+        setTimeout(()=>pollDepositStatus(orderId, statusBox, attempt+1), 3000);
+      }
+    })
+    .catch((e)=>{ gzaDebugLog("order-status fetch FAILED: "+(e?.message||e)); setTimeout(()=>pollDepositStatus(orderId, statusBox, attempt+1), 3000); });
+}
+
+function getWinningTotal(uid){
+  return values("results")
+    .filter(r=>String(r.uid||r.userId||r.playerUid||"")===String(uid))
+    .reduce((sum,r)=>sum+Number(r.prize||r.winningCoins||r.coins||0),0);
+}
+
+function getMyWithdrawalRequests(uid){
+  return values("withdrawalRequests")
+    .filter(r=>String(r.uid||r.userId||"")===String(uid))
+    .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+}
+
+function withdrawalStatusLabel(status){
+  const s=statusNorm(status||"submitted");
+  if(s==="paid"||s==="approved"||s==="completed") return "PAID";
+  if(s==="rejected"||s==="cancelled"||s==="canceled") return "REJECTED";
+  if(s==="processing"||s==="under_review") return "PROCESSING";
+  return "SUBMITTED";
+}
+
+function withdrawalStatusColor(status){
+  const s=statusNorm(status||"submitted");
+  if(s==="paid"||s==="approved"||s==="completed") return "#22c55e";
+  if(s==="rejected"||s==="cancelled"||s==="canceled") return "#ef4444";
+  if(s==="processing"||s==="under_review") return "#f59e0b";
+  return "#38bdf8";
+}
+
+function withdrawalInfo(){
+  const uid=String(currentUser?.uid||"");
+  const winningTotal=getWinningTotal(uid);
+  const withdrawSettings=(cache.settings&&cache.settings.withdraw)||{};
+  const minWithdraw=Math.max(1,Number(withdrawSettings.min||50));
+  const maxWithdraw=Math.max(minWithdraw,Number(withdrawSettings.max||10000));
+  const requests=getMyWithdrawalRequests(uid);
+  const reserved=requests.filter(r=>!["rejected","cancelled","canceled"].includes(statusNorm(r.status))).reduce((sum,r)=>sum+Number(r.amount||0),0);
+  const available=Math.max(0,winningTotal-reserved);
+  const inputMax=Math.min(maxWithdraw,available);
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Withdrawal")}
+    <div class="simple-page">
+      <div class="simple-card"><h3>🏆 Withdrawable Winning Amount</h3>
+        <p style="font-size:30px;font-weight:900;margin-top:10px">🪙 ${available}</p>
+        <p class="muted" style="margin-top:8px">Only verified winning rewards are eligible for withdrawal. Deposited/bonus coins are not included.</p>
+        <p class="muted" style="margin-top:6px">Minimum: 🪙 ${minWithdraw} · Maximum: 🪙 ${maxWithdraw}</p>
+      </div>
+      <div class="simple-card"><h3>📝 Withdrawal Details</h3>
+        <p class="muted" style="margin-top:7px">Enter your payout details. Your request remains Submitted until the status is updated.</p>
+        <form onsubmit="submitWithdrawal(event)" style="margin-top:14px;display:grid;gap:10px">
+          <input id="wdAmount" type="number" min="${minWithdraw}" max="${inputMax}" step="1" placeholder="Withdrawal Amount (coins)" required style="width:100%;padding:13px">
+          <select id="wdMethod" required onchange="renderWithdrawalFields()" style="width:100%;padding:13px">
+            <option value="">Select Withdrawal Method</option><option value="bank">🏦 Bank Account</option><option value="upi">📱 UPI ID</option><option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option><option value="redeem">🎟️ Redeem Code</option>
+          </select>
+          <div id="withdrawalFields"></div>
+          <button class="join-btn" type="submit" style="width:100%;padding:14px" ${available<minWithdraw?'disabled':''}>📤 SUBMIT WITHDRAWAL</button>
+        </form>
+        ${available<minWithdraw?`<p class="muted" style="margin-top:9px">Your winning amount has not reached the minimum withdrawal amount.</p>`:""}
+      </div>
+      <div class="simple-card"><h3>📋 Withdrawal Status</h3>
+        <div id="withdrawalStatusList" style="margin-top:10px">${requests.length?requests.map(r=>withdrawalRequestCard(r)).join(""):`<div class="muted">No withdrawal request submitted yet.</div>`}</div>
+      </div>
+    </div>${bottom()}`;
+  renderWithdrawalFields();
+}
+function renderWithdrawalFields(){
+  const method=document.getElementById("wdMethod")?.value||"";
+  const box=document.getElementById("withdrawalFields");
+  if(!box)return;
+  const common='style="width:100%;padding:13px"';
+  if(method==="bank"){
+    box.innerHTML=`
+      <input id="wdName" placeholder="Account Holder Name" required ${common}>
+      <input id="wdAccount" placeholder="Bank Account Number" inputmode="numeric" required ${common}>
+      <input id="wdIfsc" placeholder="IFSC Code" required ${common}>`;
+  }else if(method==="upi"||method==="gpay"||method==="phonepe"){
+    box.innerHTML=`
+      <input id="wdUpi" placeholder="UPI ID" required ${common}>
+      <input id="wdName" placeholder="Account/UPI Holder Name" required ${common}>`;
+  }else if(method==="redeem"){
+    box.innerHTML=`<input id="wdRedeem" placeholder="Redeem Code / Delivery Details" required ${common}>`;
+  }else{
+    box.innerHTML="";
+  }
+}
+
+function withdrawalRequestCard(r){
+  const status=withdrawalStatusLabel(r.status);
+  const color=withdrawalStatusColor(r.status);
+  const when=r.createdAt?new Date(Number(r.createdAt)).toLocaleString():"";
+  return `<div style="padding:13px 0;border-bottom:1px solid #29365f">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+      <b>🪙 ${Number(r.amount||0)} coins</b>
+      <span style="padding:5px 9px;border-radius:20px;background:${color}22;border:1px solid ${color};color:${color};font-size:11px;font-weight:900">${status}</span>
+    </div>
+    <div class="muted" style="margin-top:6px">Method: ${esc(r.methodLabel||r.method||"—")}</div>
+    <div class="muted" style="margin-top:4px">Request ID: ${esc(r.requestId||r.id||"—")}</div>
+    <div class="muted" style="margin-top:4px">${esc(when)}</div>
+    ${r.adminNote?`<div style="margin-top:7px;color:#dbe5ff;font-size:13px">Note: ${esc(r.adminNote)}</div>`:""}
+  </div>`;
+}
+
+async function submitWithdrawal(ev){
+  ev.preventDefault();
+  if(!currentUser){alert("Please login to continue.");return;}
+  const uid=String(currentUser.uid);
+  /* GEN Z ARENA FIX: minWithdraw/maxWithdraw were only declared inside withdrawalInfo()
+     and were not in scope here, so this whole function threw a silent ReferenceError
+     the moment Submit was clicked — nothing happened and no alert ever showed. */
+  const withdrawSettings=(cache.settings&&cache.settings.withdraw)||{};
+  const minWithdraw=Math.max(1,Number(withdrawSettings.min||50));
+  const maxWithdraw=Math.max(minWithdraw,Number(withdrawSettings.max||10000));
+  const amount=Number(document.getElementById("wdAmount")?.value||0);
+  const method=document.getElementById("wdMethod")?.value||"";
+  const winningTotal=getWinningTotal(uid);
+  const requests=getMyWithdrawalRequests(uid);
+  const reserved=requests.filter(r=>!["rejected","cancelled","canceled"].includes(statusNorm(r.status))).reduce((s,r)=>s+Number(r.amount||0),0);
+  const available=Math.max(0,winningTotal-reserved);
+  if(!amount||amount<1){alert("Please enter a valid withdrawal amount.");return;}
+  if(amount<minWithdraw){alert(`Minimum withdrawal amount is ${minWithdraw} coins.`);return;}
+  if(amount>maxWithdraw){alert(`Maximum withdrawal amount is ${maxWithdraw} coins.`);return;}
+  if(amount>available){alert(`Maximum available winning amount is ${available} coins.`);return;}
+  if(!method){alert("Please select a withdrawal method.");return;}
+
+  const methodLabel={bank:"Bank Account",upi:"UPI ID",gpay:"Google Pay",phonepe:"PhonePe",redeem:"Redeem Code"}[method]||method;
+  const details={};
+  if(method==="bank"){
+    details.accountHolder=String(document.getElementById("wdName")?.value||"").trim();
+    details.accountNumber=String(document.getElementById("wdAccount")?.value||"").trim();
+    details.ifsc=String(document.getElementById("wdIfsc")?.value||"").trim().toUpperCase();
+    if(!details.accountHolder||!details.accountNumber||!details.ifsc){alert("Please fill all bank details.");return;}
+  }else if(method==="upi"||method==="gpay"||method==="phonepe"){
+    details.upiId=String(document.getElementById("wdUpi")?.value||"").trim();
+    details.holderName=String(document.getElementById("wdName")?.value||"").trim();
+    if(!details.upiId||!details.holderName){alert("Please fill the UPI details.");return;}
+  }else if(method==="redeem"){
+    details.redeemCode=String(document.getElementById("wdRedeem")?.value||"").trim();
+    if(!details.redeemCode){alert("Please enter the redeem code/details.");return;}
+  }
+
+  const requestId="WD"+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,6).toUpperCase();
+  const payload={
+    requestId,uid,userId:uid,
+    userName:String(currentUserData().name||currentUser.displayName||"User"),
+    email:String(currentUser.email||""),
+    amount,method,methodLabel,details,
+    status:"submitted",createdAt:Date.now(),updatedAt:Date.now()
+  };
+
+  /* GEN Z ARENA FIX: submitting a withdrawal request used to only write a
+     row into withdrawalRequests — it never touched users/{uid}/coins, so
+     the wallet balance shown everywhere (header coin-box, join screen)
+     stayed exactly the same and the same coins could still be spent on
+     joining another match while the withdrawal was pending. We now
+     atomically debit the requested amount from the wallet at submit time,
+     the same way confirmJoin() debits an entry fee, so the coins are
+     actually reserved the moment the request goes in. */
+  let debited=false;
+  try{
+    const walletRef=db.ref("users/"+uid+"/coins");
+    const tx=await walletRef.transaction(currentCoins=>{
+      const n=Number(currentCoins||0);
+      if(n<amount)return;
+      return n-amount;
+    });
+    if(!tx.committed){
+      alert("Your wallet balance changed just now. Please re-check the amount and try again.");
+      return;
+    }
+    debited=true;
+    const newBalance=Number(tx.snapshot.val()||0);
+    if(cache.users?.[uid]) cache.users[uid].coins=newBalance;
+
+    await db.ref("withdrawalRequests").push(payload);
+    await db.ref("coinTransactions").push({
+      uid,type:"withdrawal",amount:-amount,balanceAfter:newBalance,
+      requestId,method,methodLabel,status:"submitted",createdAt:payload.createdAt
+    });
+    alert("Withdrawal request submitted successfully. "+amount+" coins have been deducted from your wallet. Status: SUBMITTED.");
+    withdrawalInfo();
+  }catch(e){
+    console.error("Withdrawal request error",e);
+    // If the coins were debited but the request record failed to save, refund exactly what was taken.
+    if(debited){
+      try{
+        const walletRef=db.ref("users/"+uid+"/coins");
+        await walletRef.transaction(currentCoins=>Number(currentCoins||0)+amount);
+        if(cache.users?.[uid]) cache.users[uid].coins=Number(cache.users[uid].coins||0)+amount;
+      }catch(refundError){
+        console.error("Withdrawal refund failed:",refundError);
+      }
+    }
+    alert("Withdrawal request could not be submitted. Please try again.");
+  }
+}
+
+function joinHistoryPage(){
+  const uid=String(currentUser?.uid||"");
+  const rows=values("joinHistory")
+    .filter(x=>String(x.userId||x.uid||"")===uid)
+    .sort((a,b)=>Number(b.joinedAt||b.createdAt||0)-Number(a.joinedAt||a.createdAt||0));
+
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Join History")}
+    <div class="simple-page">
+      ${rows.length?rows.map(r=>{
+        const t=cache.tournaments?.[String(r.tournamentId||"")]||{};
+        const m=cache.matches?.[String(r.matchId||"")]||{};
+        const ts=statusNorm(t.status), ms=statusNorm(m.status);
+        const isCancelled=ts==="cancelled"||ts==="canceled"||ts==="cancel"||m.cancelled===true||ms==="cancelled"||ms==="canceled"||ms==="cancel";
+        const isDeleted=ts==="deleted"||t.deleted===true||m.deleted===true||ms==="deleted";
+        const displayStatus=isDeleted?"Deleted":isCancelled?"Cancelled":(r.status||"Joined");
+        const reason=isDeleted?(t.deletionReason||m.deletionReason||""):isCancelled?(t.cancellationReason||m.cancellationReason||""):"";
+        return `
+        <div class="simple-card gza-history-card" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+            <div>
+              <div style="font-size:18px;font-weight:900;color:#fff">${esc(r.tournamentName||t.name||r.tournamentId||"Tournament")}</div>
+              <div class="history-label" style="margin-top:4px">Tournament ID: <span class="history-value">${esc(r.tournamentId||"—")}</span></div>
+            </div>
+            <div class="history-status">${esc(displayStatus)}</div>
+          </div>
+          ${reason?`<div class="history-label" style="margin-top:10px">${esc(isDeleted?"Delete Reason":"Cancellation Reason")}</div><div class="history-value" style="margin-top:3px">${esc(reason)}</div>`:""}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px">
+            <div><div class="history-label">Match ID</div><div class="history-value" style="margin-top:3px">${esc(r.matchId||"—")}</div></div>
+            <div><div class="history-label">Entry Coins</div><div class="history-value" style="margin-top:3px;color:#ffd84d!important">🪙 ${Number(r.entryCoins||0)}</div></div>
+            <div><div class="history-label">Team</div><div class="history-value" style="margin-top:3px">${esc(r.teamName||r.team||"—")}</div></div>
+            <div><div class="history-label">Position</div><div class="history-value" style="margin-top:3px">${esc(r.position||r.slot||"—")}</div></div>
+            <div><div class="history-label">In Game Name</div><div class="history-value" style="margin-top:3px">${recordNameHtml(r,"—",true)}</div></div>
+            <div><div class="history-label">In Game UID</div><div class="history-value" style="margin-top:3px">${esc(r.inGameUid||r.uidGame||r.gameId||"—")}</div></div>
+          </div>
+          <div class="history-label" style="margin-top:12px">Joined At</div>
+          <div class="history-value" style="margin-top:3px">${r.joinedAt?esc(new Date(Number(r.joinedAt)).toLocaleString()):"—"}</div>
+          ${!isCancelled&&!isDeleted?renderMatchCredentials(r.tournamentId||""):""}
+        </div>`;
+      }).join("")
+        :`<div class="simple-card"><b>No join history yet.</b></div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+
+function notifications(){
+  const arr=values("notifications").sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Notifications")}
+    <div class="simple-page">
+      ${arr.length ? arr.map(n=>`
+        <div class="simple-card">
+          <b>${esc(n.title||"Notification")}</b>
+          <p style="margin-top:8px">${esc(n.body||n.message||"")}</p>
+        </div>`).join("") :
+        `<div class="simple-card"><b>No notifications yet.</b></div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+
+function profile(){
+  const u=currentUser ? (cache.users?.[currentUser.uid]||{}) : {};
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("My Profile")}
+    <div class="simple-page">
+      <div class="simple-card">
+        <label>Name</label>
+        <input id="profileName" value="${esc(u.name||u.username||'')}" style="width:100%;padding:12px;margin-top:6px">
+        <label style="display:block;margin-top:12px">In Game Name</label>
+        <input id="profileIgn" value="${esc(u.ign||u.inGameName||'')}" style="width:100%;padding:12px;margin-top:6px">
+        <label style="display:block;margin-top:12px">Game UID</label>
+        <input id="profileUid" value="${esc(u.gameUid||u.inGameUid||'')}" style="width:100%;padding:12px;margin-top:6px">
+        <button class="join-btn" style="width:100%;margin-top:16px" onclick="saveProfile()">SAVE PROFILE</button>
+      </div>
+    </div>${bottom()}`;
+}
+async function saveProfile(){
+  if(!currentUser){alert("Please login to continue.");return;}
+  const name=document.getElementById("profileName").value.trim();
+  const ign=document.getElementById("profileIgn").value.trim();
+  const gameUid=document.getElementById("profileUid").value.trim();
+  await db.ref("users/"+currentUser.uid).update({name,ign,gameUid,inGameName:ign,inGameUid:gameUid});
+  profile();
+  setTimeout(()=>toastUser("✓ Profile updated successfully."),60);
+}
+
+function menu(){
+  const items=[
+    ["👤","My Profile"],["🪙","My Wallet"],["📊","My Statistics"],
+    ["🏆","Top Players / Leaderboard"],["🔔","Notifications"],["⭐","Subscription"],
+    ["🔗","Refer & Earn"],["🎮","My Tournaments"],["📜","Join History"],["🕘","Match History"],
+    ["🎟️","My Coupons"],["📢","Announcements"],["❓","Help & FAQ"],
+    ["☎️","Contact Support"],["⚙️","Settings"],["🔒","Privacy Policy"],
+    ["📄","Terms & Conditions"],["🚪","Logout"]
+  ];
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Menu")}
+    <div class="simple-page">
+      ${items.map(([icon,title])=>`
+        <button class="simple-card menu-feature" onclick="menuAction('${esc(title)}')"
+          style="display:flex;align-items:center;gap:12px;cursor:pointer;border:0">
+          <span style="font-size:22px;width:28px;text-align:center">${icon}</span>
+          <span>${esc(title)}</span>
+          <span style="margin-left:auto;color:#8892a0;font-size:20px">›</span>
+        </button>`).join("")}
+    </div>
+    ${bottom()}
+  `;
+}
+
+function menuAction(x){
+  switch(x){
+    case "My Profile": return profile();
+    case "My Wallet": return wallet();
+    case "My Statistics": return statistics();
+    case "Top Players / Leaderboard": return leaderboard();
+    case "Notifications": return notifications();
+    case "Subscription": return subscription();
+    case "Refer & Earn": return referral();
+    case "My Tournaments": return myMatches("upcoming");
+    case "Join History": return joinHistoryPage();
+    case "Match History": return matchHistory();
+    case "My Coupons": return coupons();
+    case "Announcements": return announcements();
+    case "Help & FAQ": return helpFaq();
+    case "Contact Support": return support();
+    case "Settings": return userSettings();
+    case "Privacy Policy": return policyPage("Privacy Policy");
+    case "Terms & Conditions": return policyPage("Terms & Conditions");
+    case "Logout":
+      auth.signOut().catch(()=>{});
+      return home();
+    default: return simple(x);
+  }
+}
+
+/* ---------------- Menu feature pages ---------------- */
+
+function currentUserData(){
+  return currentUser ? (cache.users?.[currentUser.uid]||{}) : {};
+}
+function ensureReferralCode(){
+  if(!currentUser?.uid)return "";
+  const u=currentUserData();
+  const existing=String(u.referralCode||u.referralCodeId||u.referral||"");
+  if(existing)return existing;
+  const code="GZA"+String(Math.random().toString(36).slice(2,8)).toUpperCase();
+  const updates={referralCode:code,updatedAt:Date.now()};
+  db.ref("users/"+currentUser.uid).update(updates).then(()=>{
+    if(!cache.users)cache.users={};
+    cache.users[currentUser.uid]={...(cache.users[currentUser.uid]||{}),...updates};
+  }).catch(e=>console.warn("Referral code creation failed",e));
+  return code;
+}
+
+function profile(){
+  const u=currentUserData();
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("My Profile")}
+    <div class="simple-page">
+      <div class="simple-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <h3>👤 Profile</h3>
+          <button id="editProfileBtn" type="button" style="padding:9px 14px;border-radius:9px;background:#1688e8;color:#fff;font-weight:800">✏️ EDIT</button>
+        </div>
+        <div id="profileView" style="margin-top:14px;line-height:2">
+          <div><b>Name:</b> ${premiumNameHtml(u.name||u.displayName||"User",u,true)}</div>
+          <div><b>Game ID:</b> ${esc(u.uidGame||u.gameUid||u.gameId||u.inGameUid||"Not added")}</div>
+          <div><b>IGN:</b> ${esc(u.ign||u.inGameName||"Not added")}</div>
+          <div><b>Email:</b> ${esc(u.email||"Not available")}</div>
+          <div><b>Mobile:</b> ${esc(u.mobile||u.phone||"Not available")}</div>
+          <div><b>UID:</b> ${esc(currentUser?.uid||u.id||"")}</div>
+        </div>
+        <div id="profileEdit" style="display:none;margin-top:14px">
+          <label style="display:block;font-weight:700;margin-bottom:5px">Name</label>
+          <input id="profileName" value="${esc(u.name||u.displayName||"")}" style="width:100%;padding:12px;margin-top:0">
+          <label style="display:block;font-weight:700;margin:12px 0 5px">In Game Name</label>
+          <input id="profileIgn" value="${esc(u.ign||u.inGameName||"")}" style="width:100%;padding:12px;margin-top:0">
+          <label style="display:block;font-weight:700;margin:12px 0 5px">Game UID</label>
+          <input id="profileUid" value="${esc(u.uidGame||u.gameUid||u.gameId||u.inGameUid||"")}" style="width:100%;padding:12px;margin-top:0">
+          <div id="profileSaveMsg" style="margin-top:10px;color:#c62828;font-size:13px;font-weight:700;min-height:18px"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px">
+            <button id="cancelProfileEdit" type="button" style="padding:12px;border-radius:9px;background:#e9edf2;font-weight:800">CANCEL</button>
+            <button id="saveProfileBtn" type="button" style="padding:12px;border-radius:9px;background:#188038;color:#fff;font-weight:800">💾 SAVE</button>
+          </div>
+        </div>
+      </div>
+      <div class="simple-card">
+        <h3>⭐ Subscription Status</h3>
+        <p style="margin-top:8px">${esc(u.subscription||u.subscriptionStatus||"Not subscribed")}</p>
+      </div>
+    </div>
+    ${bottom()}
+  `;
+  const edit=document.getElementById("editProfileBtn");
+  const cancel=document.getElementById("cancelProfileEdit");
+  const save=document.getElementById("saveProfileBtn");
+  if(edit) edit.onclick=()=>{
+    document.getElementById("profileView").style.display="none";
+    document.getElementById("profileEdit").style.display="block";
+    edit.style.display="none";
+  };
+  if(cancel) cancel.onclick=()=>profile();
+  if(save) save.onclick=saveProfile;
+}
+
+async function saveProfile(){
+  if(!currentUser){alert("Please login to continue.");return;}
+  const name=document.getElementById("profileName")?.value.trim()||"";
+  const ign=document.getElementById("profileIgn")?.value.trim()||"";
+  const gameUid=document.getElementById("profileUid")?.value.trim()||"";
+  const msg=document.getElementById("profileSaveMsg");
+  if(!name||!ign||!gameUid){if(msg)msg.textContent="Please fill Name, In Game Name and Game UID.";return;}
+  const btn=document.getElementById("saveProfileBtn");
+  if(btn){btn.disabled=true;btn.textContent="Saving...";}
+  try{
+    const updates={name:name,ign:ign,uidGame:gameUid,inGameName:ign,inGameUid:gameUid,gameUid:gameUid,updatedAt:Date.now()};
+    await db.ref("users/"+currentUser.uid).update(updates);
+    if(!cache.users)cache.users={};
+    cache.users[currentUser.uid]={...(cache.users[currentUser.uid]||{}),...updates};
+    gzaNotify("Profile saved successfully.","success");
+    profile();
+  }catch(e){
+    console.error(e);
+    if(btn){btn.disabled=false;btn.textContent="💾 SAVE";}
+    const msg=document.getElementById("profileSaveMsg");
+    if(msg)msg.textContent="We could not save your profile right now. Please try again.";
+    if(btn){btn.disabled=false;btn.textContent="💾 SAVE";}
+  }
+}
+
+function statistics(){
+  const uid=currentUser?.uid||"";
+  const joined=values("tournamentParticipants").filter(p=>String(p.uid||p.userId||p.userUid||"")===String(uid));
+  const myResults=values("results").filter(r=>String(r.uid||r.userId||r.playerUid||"")===String(uid));
+  const completed=myResults.length;
+  const wins=myResults.filter(r=>Number(r.position||r.rank||99)===1 || statusNorm(r.status)==="winner").length;
+  const coins=myResults.reduce((s,r)=>s+Number(r.prize||r.winningCoins||r.coins||0),0);
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("My Statistics")}
+    <div class="simple-page">
+      <div class="stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+        <div class="simple-card"><b>Joined</b><div style="font-size:28px;font-weight:900;margin-top:8px">${joined.length}</div></div>
+        <div class="simple-card"><b>Results</b><div style="font-size:28px;font-weight:900;margin-top:8px">${completed}</div></div>
+        <div class="simple-card"><b>1st Positions</b><div style="font-size:28px;font-weight:900;margin-top:8px">${wins}</div></div>
+        <div class="simple-card"><b>Winning Coins</b><div style="font-size:28px;font-weight:900;margin-top:8px">🪙 ${coins}</div></div>
+      </div>
+    </div>
+    ${bottom()}
+  `;
+}
+
+function referral(){
+  const u=currentUserData();
+  const code=ensureReferralCode();
+  const referred=values("users").filter(x=>String(x.referredBy||x.referralCodeUsed||"")===code);
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Refer & Earn")}
+    <div class="simple-page">
+      <div class="simple-card" style="text-align:center">
+        <div style="font-size:48px">🔗</div>
+        <h3 style="margin-top:8px">Your Referral Code</h3>
+        <div style="font-size:24px;font-weight:900;margin:15px 0">${esc(code||"Generating…")}</div>
+        <button class="primary-join" onclick="copyReferral('${esc(code)}')">COPY CODE</button>
+      </div>
+      <div class="simple-card">
+        <b>Referrals</b>
+        <div style="font-size:28px;font-weight:900;margin-top:8px">${referred.length}</div>
+      </div>
+    </div>
+    ${bottom()}
+  `;
+}
+function copyReferral(code){
+  if(!code){toastUser("Referral code not available");return}
+  navigator.clipboard?.writeText(code).then(()=>toastUser("Referral code copied")).catch(()=>toastUser("Copy failed"));
+}
+function toastUser(msg){
+  let t=document.getElementById("userToast");
+  if(!t){t=document.createElement("div");t.id="userToast";t.style.cssText="position:fixed;left:50%;bottom:165px;transform:translateX(-50%);background:linear-gradient(90deg,#0d4b2e,#0b6b43);color:#fff;padding:12px 18px;border:1px solid #35f28b;border-radius:12px;z-index:999;box-shadow:0 8px 24px #0009;font-weight:800;white-space:nowrap";document.body.appendChild(t);}
+  t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",1800);
+}
+
+function matchHistory(){
+  const uid=currentUser?.uid||"";
+  const joined=values("tournamentParticipants").filter(p=>String(p.uid||p.userId||p.userUid||"")===String(uid));
+  const matches=values("matches");
+  const rows=joined.map(p=>{
+    const m=matches.find(x=>String(x.id)===String(p.matchId||""));
+    return {p,m};
+  });
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Match History")}
+    <div class="simple-page">
+      ${rows.length?rows.map(({p,m})=>`
+        <div class="simple-card">
+          <b>${esc(m?.name||p.matchName||p.tournamentName||"Match")}</b>
+          <div style="margin-top:7px">Status: ${esc(m?.status||p.status||"Joined")}</div>
+          <div style="margin-top:5px" class="muted">${esc(m?.time||p.joinedAt||"")}</div>
+        </div>`).join(""):`<div class="simple-card"><b>No match history found.</b></div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+
+function coupons(){
+  const uid=currentUser?.uid||"";
+  const arr=values("coupons").filter(c=>{
+    const target=String(c.uid||c.userId||"");
+    return !target || target===String(uid);
+  });
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("My Coupons")}
+    <div class="simple-page">
+      ${arr.length?arr.map(c=>`
+        <div class="simple-card">
+          <h3>🎟️ ${esc(c.name||c.title||c.code||"Coupon")}</h3>
+          <div style="margin-top:7px"><b>Code:</b> ${esc(c.code||"—")}</div>
+          <div style="margin-top:5px">${esc(c.description||c.discount||"Available coupon")}</div>
+          <div style="margin-top:5px" class="muted">Status: ${esc(c.status||"Active")}</div>
+        </div>`).join(""):`<div class="simple-card"><b>No coupons available.</b></div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+
+function announcements(){
+  const arr=values("announcements").concat(
+    values("notifications").filter(n=>statusNorm(n.type)==="announcement")
+  ).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Announcements")}
+    <div class="simple-page">
+      ${arr.length?arr.map(n=>`
+        <div class="simple-card">
+          <h3>📢 ${esc(n.title||"Announcement")}</h3>
+          <p style="margin-top:8px;line-height:1.6">${esc(n.body||n.message||"")}</p>
+          <div class="muted" style="margin-top:7px">${esc(n.createdAt?new Date(Number(n.createdAt)).toLocaleString():"")}</div>
+        </div>`).join(""):`<div class="simple-card"><b>No announcements yet.</b></div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+
+function helpFaq(){
+  const faqs=[
+    ["How do I join a tournament?","Open a game category, choose a tournament, review its rules, select an available position and enter your game details."],
+    ["Where can I see my matches?","Use My Matches on Home or My Tournaments from Menu."],
+    ["Where are room details shown?","Room details are shown by the User Panel only when the match data allows them to be visible."],
+    ["How do I see notifications?","Tap the bell icon or open Notifications from Menu."],
+    ["How do I check my subscription?","Open Subscription from Home/Menu to see your available plans."]
+  ];
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Help & FAQ")}
+    <div class="simple-page">
+      ${faqs.map(([q,a])=>`<details class="simple-card" style="cursor:pointer"><summary style="font-weight:800">${esc(q)}</summary><p style="margin-top:10px;line-height:1.6">${esc(a)}</p></details>`).join("")}
+    </div>
+    ${bottom()}
+  `;
+}
+
+function support(){
+  /* GEN Z ARENA FIX: this used to read only 4 exact field names
+     (supportNumber/supportPhone/supportLink/supportUrl) out of
+     "settings". If the admin panel saved Customer Support details under
+     any other name, or under a separate "support" node, nothing showed
+     up here even though the admin had updated it. We now merge both
+     "settings" and "support", and pick up ANY field whose name contains
+     "support" (case-insensitive) so an admin update always reaches the
+     user — whatever the admin panel happens to call it — plus we still
+     recognise the original field names and a WhatsApp/email/message. */
+  const merged={...(cache.settings||{}),...(cache.support||{})};
+  const isUrl=v=>/^https?:\/\//i.test(String(v||"").trim());
+  const isPhone=v=>/^[+0-9][0-9\s-]{6,}$/.test(String(v||"").trim());
+
+  let number=merged.supportNumber||merged.supportPhone||merged.supportWhatsapp||merged.whatsapp||"";
+  let link=merged.supportLink||merged.supportUrl||merged.supportWebsite||"";
+  let email=merged.supportEmail||merged.email||"";
+  let message=merged.supportMessage||merged.supportText||merged.supportDetails||merged.supportNote||merged.message||"";
+  const extras=[];
+
+  Object.keys(merged).forEach(k=>{
+    if(!/support/i.test(k))return;
+    const v=merged[k];
+    if(v==null||typeof v==="object")return;
+    const val=String(v).trim();
+    if(!val)return;
+    if(isPhone(val)){ if(!number) number=val; return; }
+    if(isUrl(val)){ if(!link) link=val; return; }
+    if(/@/.test(val) && !email){ email=val; return; }
+    if(val!==message && !extras.includes(val)) extras.push(val);
+  });
+
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Contact Support")}
+    <div class="simple-page">
+      <div class="simple-card">
+        <h3>☎️ Customer Support</h3>
+        <p style="margin-top:10px">For app-related help, contact the support details shown here.</p>
+        ${message?`<p style="margin-top:12px;line-height:1.6">${esc(message)}</p>`:""}
+        ${extras.map(t=>`<p style="margin-top:8px;line-height:1.6">${esc(t)}</p>`).join("")}
+        ${number?`<button class="primary-join" onclick="location.href='tel:${esc(number)}'">CALL SUPPORT</button>`:""}
+        ${email?`<button class="primary-join" style="margin-top:8px" onclick="location.href='mailto:${esc(email)}'">EMAIL SUPPORT</button>`:""}
+        ${link?`<button class="primary-join" style="margin-top:8px" onclick="window.open('${esc(link)}','_blank','noopener')">OPEN SUPPORT</button>`:""}
+        ${!number&&!link&&!email&&!message&&!extras.length?`<p class="muted" style="margin-top:12px">Support details have not been published yet.</p>`:""}
+      </div>
+    </div>
+    ${bottom()}
+  `;
+}
+
+function userSettings(){
+  const sound=localStorage.getItem("gza_sound")!=="off";
+  const notify=localStorage.getItem("gza_notifications")!=="off";
+  document.getElementById("app").innerHTML=`
+    ${innerHeader("Settings")}
+    <div class="simple-page">
+      <div class="simple-card">
+        <h3>⚙️ App Settings</h3>
+        <label style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #eee">
+          <span>Notifications</span>
+          <input type="checkbox" ${notify?"checked":""} onchange="toggleUserSetting('gza_notifications',this.checked)">
+        </label>
+        <label style="display:flex;justify-content:space-between;align-items:center;padding:14px 0">
+          <span>Sound</span>
+          <input type="checkbox" ${sound?"checked":""} onchange="toggleUserSetting('gza_sound',this.checked)">
+        </label>
+      </div>
+    </div>
+    ${bottom()}
+  `;
+}
+function toggleUserSetting(key,on){
+  localStorage.setItem(key,on?"on":"off");
+  toastUser("Setting saved");
+}
+
+function policyPage(title){
+  const p=cache.policies||{};
+  const text=title==="Privacy Policy"
+    ? (p.privacy||p.privacyPolicy||"Your account information is used only for operating the User Panel and its connected tournament features.")
+    : (p.terms||p.termsConditions||"Use the tournament features fairly and follow the rules shown here.");
+  document.getElementById("app").innerHTML=`
+    ${innerHeader(title)}
+    <div class="simple-page">
+      <div class="simple-card"><h3>${esc(title)}</h3><p style="margin-top:12px;line-height:1.7;white-space:pre-wrap">${esc(text)}</p></div>
+    </div>
+    ${bottom()}
+  `;
+}
+
+function simple(title,content){
+  document.getElementById("app").innerHTML=`
+    ${innerHeader(title)}
+    <div class="simple-page">
+      ${content || `<div class="simple-card"><h3>${esc(title)}</h3><p style="margin-top:8px">This section is connected to the User Panel structure.</p></div>`}
+    </div>
+    ${bottom()}
+  `;
+}
+
+/* ---------------- Realtime render ---------------- */
+
+function renderCurrent(){
+  const app=document.getElementById("app");
+  if(!app)return;
+
+  if(!currentUser){
+    showAuth("login");
+    return;
+  }
+
+  /* Keep the exact screen that the user was viewing. Firebase listeners
+     can call renderCurrent() after a browser reload; never force Home when
+     another route is already restored. */
+  const route=gzaRouteStack?.[gzaRouteStack.length-1];
+  if(route && route.name && route.name!=="home" && !gzaHistoryNavigatingBack){
+    try{
+      const fn=window[route.name];
+      if(fn?.__gzaOriginal){
+        fn.__gzaOriginal.apply(window,route.args||[]);
+        return;
+      }
+    }catch(_){ }
+  }
+
+  if(currentTournament && document.querySelector(".details-page")){
+    const fn=window.details;
+    if(fn?.__gzaOriginal)fn.__gzaOriginal.call(window,currentTournament.id);
+    else details(currentTournament.id);
+    return;
+  }
+
+  if(currentCategoryId && document.querySelector(".tabs")){
+    renderCategory();
+    return;
+  }
+
+  /* Firebase data can arrive after Home is first painted. */
+  if(document.querySelector(".topbar")){
+    const fn=window.home;
+    if(fn?.__gzaOriginal)fn.__gzaOriginal.call(window);
+    else home();
+    return;
+  }
+
+  if(!document.querySelector(".bottom-nav")){
+    const fn=window.home;
+    if(fn?.__gzaOriginal)fn.__gzaOriginal.call(window);
+    else home();
+  }
+}
+
+/* ---------------- Android / phone back navigation ----------------
+   Each major User Panel screen gets a browser-history entry. The phone
+   back button therefore moves exactly one app screen back instead of
+   closing the page immediately. Direct header back buttons use the same
+   history route. Refresh keeps the current page as the browser's first
+   entry without creating an infinite loop.
+-------------------------------------------- */
+let gzaHistoryReady=false;
+let gzaHistoryNavigatingBack=false;
+let gzaRouteStack=[];
+function gzaRouteKey(name,args){
+  try{return name+"|"+JSON.stringify(args||[]);}catch(_){return name;}
+}
+function gzaStartAtHome(){
+  // Every fresh app/page open starts at Home. Do not restore a previous inner screen.
+  try{localStorage.removeItem("gza_last_route");}catch(_){}
+  gzaHistoryReady=true;
+  gzaHistoryNavigatingBack=false;
+  const homeFn=window.home?.__gzaOriginal || window.home;
+  if(typeof homeFn!=="function")return;
+  const route={name:"home",args:[],key:gzaRouteKey("home",[])};
+  gzaRouteStack=[route];
+  try{history.replaceState({gza:true,index:0},"",location.href);}catch(_){}
+  gzaResetScroll();
+  homeFn.apply(window,[]);
+  requestAnimationFrame(gzaResetScroll);
+}
+function gzaResetScroll(){
+  try{window.scrollTo({top:0,left:0,behavior:"auto"});}catch(_){try{window.scrollTo(0,0);}catch(__){}}
+  try{document.documentElement.scrollTop=0;document.body.scrollTop=0;}catch(_){}
+  try{document.querySelectorAll("[data-scroll-container], .gza-contest-list, .simple-page, .page, .tournament-list, .details-page, .position-page, .selected-page, .game-details-page, .leader-page, .subscription-page").forEach(el=>{if(el.scrollTop)el.scrollTop=0;});}catch(_){}
+}
+function gzaPushRoute(name,args,original){
+  const key=gzaRouteKey(name,args);
+  const last=gzaRouteStack[gzaRouteStack.length-1];
+  if(!gzaHistoryReady){
+    gzaHistoryReady=true;
+    gzaRouteStack=[{name,args,key}];
+    gzaSaveCurrentRoute();
+    gzaResetScroll();
+    original.apply(window,args||[]);
+    requestAnimationFrame(gzaResetScroll);
+    return;
+  }
+  if(gzaHistoryNavigatingBack){
+    gzaResetScroll();
+    original.apply(window,args||[]);
+    requestAnimationFrame(gzaResetScroll);
+    return;
+  }
+  if(last && last.key===key){
+    gzaResetScroll();
+    original.apply(window,args||[]);
+    requestAnimationFrame(gzaResetScroll);
+    return;
+  }
+  gzaRouteStack.push({name,args,key});
+  gzaSaveCurrentRoute();
+  history.pushState({gza:true,index:gzaRouteStack.length-1},"",location.href);
+  gzaResetScroll();
+  original.apply(window,args||[]);
+  requestAnimationFrame(gzaResetScroll);
+}
+function gzaBack(){
+  if(gzaRouteStack.length>1){history.back();return;}
+  try{
+    const homeFn=window.home?.__gzaOriginal || originalHomeForHistory || window.home;
+    if(typeof homeFn==="function"){
+      gzaRouteStack=[{name:"home",args:[],key:gzaRouteKey("home",[])}];
+      gzaHistoryReady=true;
+      try{history.replaceState({gza:true,index:0},"",location.href);}catch(_){}
+      homeFn.apply(window,[]);
+    }
+  }catch(_){ }
+}
+function gzaInstallNavigationHistory(){
+  const names=["home","category","details","positions","viewAllJoiningPlayers","selected","gameDetails","wallet","deposit","withdrawalInfo","leaderboard","subscription","referral","profile","statistics","menu","notifications","announcements","helpFaq","support","userSettings","policyPage","matchHistory","joinHistoryPage","transactionHistory","myMatches","coupons","earn","simple"];
+  names.forEach(name=>{
+    const original=window[name];
+    if(typeof original!=="function" || original.__gzaWrapped)return;
+    if(name==="home")window.originalHomeForHistory=original;
+    const wrapped=function(...args){return gzaPushRoute(name,args,original);};
+    wrapped.__gzaWrapped=true;
+    wrapped.__gzaOriginal=original;
+    window[name]=wrapped;
+  });
+  window.addEventListener("popstate",()=>{
+    if(gzaRouteStack.length<=1){
+      const first=gzaRouteStack[0];
+      if(first){gzaHistoryNavigatingBack=true;try{window[first.name].__gzaOriginal.apply(window,first.args||[]);}finally{gzaHistoryNavigatingBack=false;}}
+      return;
+    }
+    gzaRouteStack.pop();
+    const prev=gzaRouteStack[gzaRouteStack.length-1];
+    if(!prev)return;
+    gzaHistoryNavigatingBack=true;
+    try{
+      gzaResetScroll();
+      const fn=window[prev.name];
+      if(fn?.__gzaOriginal)fn.__gzaOriginal.apply(window,prev.args||[]);
+      else if(typeof fn==="function")fn.apply(window,prev.args||[]);
+      requestAnimationFrame(gzaResetScroll);
+    }finally{gzaHistoryNavigatingBack=false;}
+  });
+}
+
+/* Install wrappers before authentication starts so every screen transition
+   is captured, including transitions triggered from Firebase callbacks. */
+gzaInstallNavigationHistory();
+
+// Mobile pull-down refresh: only triggers when the page is already at the top.
+(function installPullRefresh(){
+  let startY=0,tracking=false;
+  document.addEventListener("touchstart",e=>{
+    if(window.scrollY<=0 && e.touches?.length===1){startY=e.touches[0].clientY;tracking=true;}
+  },{passive:true});
+  document.addEventListener("touchmove",e=>{
+    if(!tracking||!e.touches?.length)return;
+    if(e.touches[0].clientY-startY>85){tracking=false;refreshApp(null);}
+  },{passive:true});
+  document.addEventListener("touchend",()=>{tracking=false;},{passive:true});
+})();
+
+startListeners();
+startAuth();
+</script>
+</body>
+</html>
