@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GEN Z ARENA Staff Panel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f6fa;color:#202124}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fff}
+.login-box{width:390px;max-width:92%;padding:30px;background:#fff;border:1px solid #e5e5e5;border-radius:18px;box-shadow:0 10px 35px #0001}
+.login-box h1{text-align:center;margin-bottom:8px}.login-box p{text-align:center;color:#777;margin-bottom:25px}
+.input{width:100%;padding:13px;border:1px solid #ddd;border-radius:9px;margin-bottom:13px;outline:none}
+.primary{width:100%;padding:13px;border-radius:9px;background:#111;color:#fff}
+.error{color:#d93025;text-align:center;margin-top:12px}
+.app{display:none;min-height:100vh}.topbar{height:70px;background:#fff;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;padding:0 22px;gap:20px;position:sticky;top:0;z-index:20}
+.menu-btn{width:42px;height:42px;border-radius:9px;background:#f0f1f3;font-size:23px}.top-title{font-size:21px;font-weight:700}.clock{margin-left:auto;font-size:22px;font-weight:700}
+.sidebar{position:fixed;left:0;top:70px;bottom:0;width:250px;background:#fff;border-right:1px solid #e5e5e5;padding:15px;overflow:auto;transition:.25s;z-index:15}
+.sidebar.hide{transform:translateX(-100%)}.nav{width:100%;text-align:left;padding:12px;margin:3px 0;border-radius:9px;background:#fff}.nav:hover,.nav.active{background:#f0f1f3;font-weight:bold}
+.content{margin-left:250px;padding:25px;transition:.25s}.content.full{margin-left:0}.section{display:none!important;visibility:hidden!important;height:0!important;overflow:hidden!important}.section.active{display:block!important;visibility:visible!important;height:auto!important;overflow:visible!important;position:relative!important}
+h2{margin-bottom:20px}h3{margin-bottom:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:25px}
+.stat,.card{background:#fff;border:1px solid #e5e5e5;border-radius:14px}.stat{padding:20px}.stat span{color:#777;font-size:13px}.stat strong{display:block;font-size:28px;margin-top:8px}
+.card{padding:20px;margin-bottom:18px}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form-grid label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+textarea.input{min-height:100px;resize:vertical}.btn{padding:10px 15px;border-radius:8px;background:#111;color:#fff}.btn.light{background:#f0f1f3;color:#222}.btn.danger{background:#d93025}.btn.success{background:#188038}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:13px;border-bottom:1px solid #eee;text-align:left;white-space:nowrap}th{background:#fafafa}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#eee;font-size:12px}.green{background:#e6f4ea;color:#137333}.red{background:#fce8e6;color:#c5221f}
+.empty{text-align:center;color:#777;padding:25px}.toast{position:fixed;right:20px;bottom:20px;background:#111;color:#fff;padding:13px 18px;border-radius:9px;display:none;z-index:100}
+.warning{background:#fff8e1;border:1px solid #ffe082;padding:14px;border-radius:10px;margin-bottom:15px;color:#795548}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.sidebar{width:230px;transform:translateX(-100%)}.sidebar.show{transform:translateX(0)}.content{margin-left:0}}
+@media(max-width:550px){.stats{grid-template-columns:1fr}.clock{font-size:16px}.top-title{font-size:17px}}
+.gza-local-hide{display:none!important}
+</style>
+
+<style>
+.crud-actions{display:flex;gap:6px;flex-wrap:wrap}.crud-actions .btn{padding:7px 10px;font-size:12px}.btn.blue{background:#2563eb;color:#fff}
+</style>
+
+<style id="gza-wallet-edit-style">
+#gzaWalletModal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:9999;padding:18px}
+#gzaWalletModal .gza-wallet-box{width:430px;max-width:100%;background:#fff;border-radius:14px;padding:22px;box-shadow:0 18px 55px #0004}
+#gzaWalletModal h3{margin-bottom:15px}
+#gzaWalletModal label{display:block;font-size:13px;color:#666;margin:10px 0 6px}
+#gzaWalletModal .gza-wallet-actions{display:flex;gap:8px;margin-top:16px}
+#gzaWalletModal .gza-wallet-actions button{flex:1}
+</style>
+
+
+<style id="gza-wallet-modal-final-style">
+#gzaWalletModal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:10000;padding:18px}
+#gzaWalletModal .gza-wallet-box{width:430px;max-width:100%;background:#fff;border-radius:14px;padding:22px;box-shadow:0 18px 55px rgba(0,0,0,.25)}
+#gzaWalletModal h3{margin-bottom:14px}
+#gzaWalletModal label{display:block;font-size:13px;color:#666;margin:10px 0 6px}
+#gzaWalletModal .gza-wallet-actions{display:flex;gap:8px;margin-top:16px}
+#gzaWalletModal .gza-wallet-actions button{flex:1}
+</style>
+
+</head>
+<body>
+
+<div class="login" id="loginPage">
+<div class="login-box">
+<h1>Staff Login</h1><p>GEN Z ARENA Staff Management</p>
+<input class="input" id="staffId" placeholder="Staff ID e.g. STAFF001">
+<input class="input" id="staffPassword" type="password" placeholder="Password">
+<button class="primary" id="loginBtn">Login</button>
+<div class="error" id="loginError"></div>
+</div></div>
+
+<div class="app" id="app">
+<header class="topbar"><button class="menu-btn" id="menuBtn">☰</button><div class="top-title">Tournament Admin Panel</div><div class="clock" id="clock">00:00:00</div></header>
+
+<aside class="sidebar" id="sidebar">
+<button class="nav active" data-section="dashboard">🏠 Dashboard</button>
+<button class="nav" data-section="categories">🏷️ Category Management</button>
+<button class="nav" data-section="tournaments">🏆 Tournament Management</button>
+<button class="nav" data-section="allTournament">📋 All Tournament</button>
+<button class="nav" data-section="matches">🎮 Match Management</button>
+<button class="nav" data-section="users">👥 User Management</button>
+<button class="nav" data-section="blocked">🚫 Blocked Users</button>
+<button class="nav" data-section="payments">💰 Payment Records</button>
+<button class="nav" data-section="limits">⚙️ Platform Limits</button>
+<button class="nav" data-section="results">🏅 Results & Winners</button>
+<button class="nav" data-section="banners">🖼️ Banners</button>
+<button class="nav" data-section="notifications">📢 Notifications</button>
+<button class="nav" data-section="staff">👨‍💼 Staff Management</button>
+<button class="nav" data-section="subscription">⭐ Subscription</button>
+<button class="nav" data-section="leaderboard">🏆 Leaderboard</button>
+<button class="nav" data-section="referral">🔗 Referral System</button>
+<button class="nav" data-section="support">☎️ Customer Support</button>
+<button class="nav" data-section="reports">📊 Reports</button>
+<button class="nav" data-section="policies">📜 Policies</button>
+<button class="nav" data-section="settings">⚙️ Settings</button>
+<hr style="margin:15px 0;border:0;border-top:1px solid #eee">
+<button class="nav" id="logoutBtn">🚪 Logout</button>
+</aside>
+
+<main class="content" id="content">
+
+<section id="dashboard" class="section active"><h2>Dashboard</h2>
+<div class="stats">
+<div class="stat"><span>Total Users</span><strong id="totalUsers">0</strong></div>
+<div class="stat"><span>Active Users</span><strong id="activeUsers">0</strong></div>
+<div class="stat"><span>Blocked Users</span><strong id="blockedUsers">0</strong></div>
+<div class="stat"><span>Today's New Users</span><strong id="newUsers">0</strong></div>
+<div class="stat"><span>Total Tournaments</span><strong id="totalTournaments">0</strong></div>
+<div class="stat"><span>Upcoming</span><strong id="upcoming">0</strong></div>
+<div class="stat"><span>Live</span><strong id="live">0</strong></div>
+<div class="stat"><span>Completed</span><strong id="completed">0</strong></div> <div class="stat"><span>Total Deposit Coins</span><strong id="totalDepositCoins">0</strong></div> <div class="stat"><span>Total Withdrawal Coins</span><strong id="totalWithdrawalCoins">0</strong></div>
+</div>
+
+<div class="card"><h3>💰 Deposit & Withdrawal — Period Summary</h3>
+<div class="table-wrap"><table><thead><tr><th>Period</th><th>Deposit (coins)</th><th>Deposit Requests</th><th>Withdrawal (coins)</th><th>Withdrawal Requests</th></tr></thead>
+<tbody>
+<tr><td>Today</td><td id="dwTodayDep">0</td><td id="dwTodayDepCount">0</td><td id="dwTodayWd">0</td><td id="dwTodayWdCount">0</td></tr>
+<tr><td>Last 7 Days</td><td id="dwWeekDep">0</td><td id="dwWeekDepCount">0</td><td id="dwWeekWd">0</td><td id="dwWeekWdCount">0</td></tr>
+<tr><td>Last 30 Days</td><td id="dwMonthDep">0</td><td id="dwMonthDepCount">0</td><td id="dwMonthWd">0</td><td id="dwMonthWdCount">0</td></tr>
+<tr><td><b>All Time</b></td><td id="dwTotalDep">0</td><td id="dwTotalDepCount">0</td><td id="dwTotalWd">0</td><td id="dwTotalWdCount">0</td></tr>
+</tbody></table></div>
+</div>
+
+<div class="card"><h3>Recent Activity</h3><div id="activity" class="empty">No recent activity.</div></div></section>
+
+<section id="categories" class="section">
+<h2>Category Management</h2>
+<div class="card">
+<div class="form-grid">
+<div><label>Category Title</label><input class="input" id="categoryTitle" placeholder="e.g. BR FULL MAP"></div>
+<div><label>Category Name</label><input class="input" id="categoryName" placeholder="e.g. BR FULL MAP"></div>
+<div><label>Image URL</label><input class="input" id="categoryImage" placeholder="https://example.com/category.jpg"></div>
+</div>
+<button class="btn" id="addCategoryBtn">Add Category</button>
+</div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>Title</th><th>Name</th><th>Image</th><th>Action</th></tr></thead><tbody id="categoryTable"></tbody></table></div></div>
+</section>
+
+<section id="tournaments" class="section"><h2>Tournament Management</h2>
+<div class="card"><div class="form-grid">
+<div><label>Tournament Name</label><input class="input" id="tName" placeholder="Tournament name"></div>
+<div><label>Game</label><select class="input" id="tGame"><option>Free Fire</option><option>BGMI</option><option>COD Mobile</option><option>Valorant</option><option>Other</option></select></div>
+<div><label>Category</label><select class="input" id="tCategory"><option value="">Select Category</option></select></div>
+<div><label>Entry Amount</label><input class="input" id="tFee" type="number" min="0"></div>
+<div><label>Prize Pool (virtual coins)</label><input class="input" id="tPrizePool" type="number" min="0" step="1" placeholder="Prize Pool"></div>
+<div><label>Image URL</label><input class="input" id="tImageUrl" placeholder="https://example.com/tournament.jpg"></div>
+<div><label>Player Limit</label><input class="input" id="tLimit" type="number" min="1"></div>
+<div><label>Match Type</label><select class="input" id="tMatchType">
+<option value="Solo">Solo (1 Player / Team)</option>
+<option value="Duo">Duo (2 Players / Team)</option>
+<option value="Squad">Squad (4 Players / Team)</option>
+</select></div>
+<div><label>Players Per Team</label><input class="input" id="tPlayersPerTeam" type="number" value="1" readonly></div>
+<div><label>Start Date & Time</label><input class="input" id="tDate" type="datetime-local"></div>
+<div><label style="display:flex;align-items:center;gap:8px;margin-top:22px"><input type="checkbox" id="tPerKill"> Per Kill Points ON</label></div>
+<div><label>Per Kill Coins (agar ON hai)</label><input class="input" id="tPerKillAmount" type="number" min="0" step="1" placeholder="e.g. 2"></div>
+</div><label>Tournament Rules</label><textarea class="input" id="tRules"></textarea>
+<h3>Prize Distribution</h3><select class="input" id="prizeMode"><option>Automatic Prize Distribution</option><option>Custom Prize Distribution</option></select>
+<textarea class="input" id="prizeRules" placeholder="1st = 50%&#10;2nd = 30%&#10;3rd = 20%"></textarea>
+<button class="btn" id="createTournamentBtn">Create Tournament</button></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Game</th><th>Category</th><th>Type</th><th>Amount</th><th>Prize Pool</th><th>Players</th><th>Image</th><th>Status</th><th>Cancellation Reason</th><th>Action</th></tr></thead><tbody id="tournamentTable"></tbody></table></div></div>
+
+<div class="card" style="border-left:4px solid #d93025">
+<h3 style="margin-bottom:12px">🚫 Cancelled Tournaments</h3>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Game</th><th>Category</th><th>Reason</th><th>Cancelled On</th></tr></thead><tbody id="cancelledTournamentTable"><tr><td colspan="5" class="empty">No cancelled tournaments</td></tr></tbody></table></div>
+</div>
+
+<div class="card" style="border-left:4px solid #777">
+<h3 style="margin-bottom:12px">🗑️ Deleted Tournaments</h3>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Game</th><th>Category</th><th>Reason</th><th>Deleted On</th></tr></thead><tbody id="deletedTournamentTable"><tr><td colspan="5" class="empty">No deleted tournaments</td></tr></tbody></table></div>
+</div>
+</section>
+
+<section id="allTournament" class="section">
+<h2>All Tournament</h2>
+<div class="card">
+<h3 style="margin-bottom:12px">Select Category & Match</h3>
+<div class="form-grid">
+<select class="input" id="allTournamentCategory"><option value="">Select Category</option></select>
+<select class="input" id="allTournamentMatch"><option value="">Select Match</option></select>
+</div>
+<div id="allTournamentSummary" class="muted" style="font-size:13px;margin-top:10px"></div>
+</div>
+<div class="card">
+<h3 id="allTournamentTitle" style="margin-bottom:12px">Joined Players</h3>
+<div class="table-wrap"><table><thead><tr>
+<th>Position</th><th>Name</th><th>Email</th><th>In-Game Name</th><th>Game UID</th><th>User ID</th><th>Joined</th>
+</tr></thead><tbody id="allTournamentPlayers"><tr><td colspan="7" class="empty">Select a category and match.</td></tr></tbody></table></div>
+</div>
+</section>
+
+<section id="matches" class="section"><h2>Match Management</h2>
+<p class="muted" style="font-size:13px;margin-bottom:12px">Match automatically create hota hai jab aap Tournament banate ho — is liye yahan alag se "Create Match" ki zaroorat nahi. Room ID/Password Free Fire se lekar neeche update karo.</p>
+
+<div class="card">
+<h3 style="margin-bottom:12px">Room ID & Password Update</h3>
+<div class="form-grid">
+<select class="input" id="roomCategory"><option value="">Select Category</option></select>
+<select class="input" id="roomMatch"><option value="">Select Match</option></select>
+<input class="input" id="roomIdUpdate" placeholder="Room ID">
+<input class="input" id="roomPasswordUpdate" placeholder="Room Password">
+</div>
+<button class="btn success" id="updateRoomBtn">Update Room Details</button>
+<p class="muted" style="font-size:12px;margin-top:8px">Room details Firebase mein save honge. User Panel ko sirf <b>roomVisible=true</b> hone par dikhaye jayenge. Save hote hi is match ke joined users ko automatic notification bhi chali jaati hai.</p>
+</div>
+
+<div class="card">
+<h3 style="margin-bottom:12px">📢 Custom Notification (Sirf Is Match Ke Joined Users Ko)</h3>
+<p class="muted" style="font-size:12px;margin-bottom:10px">Upar wahi Category/Match select karo — apna custom title aur message likh ke sirf usi match ke joined users ko bhejo.</p>
+<div class="form-grid">
+<input class="input" id="roomCustomNotifTitle" placeholder="Notification title">
+<textarea class="input" id="roomCustomNotifBody" placeholder="Message"></textarea>
+</div>
+<button class="btn" id="roomCustomNotifBtn">Send Notification to Joined Users</button>
+</div>
+
+<div class="card">
+<div class="table-wrap"><table><thead><tr>
+<th>Match</th><th>Category</th><th>Tournament</th><th>Players</th><th>Schedule</th><th>Room</th><th>Status</th><th>Action</th>
+</tr></thead><tbody id="matchTable"></tbody></table></div>
+</div></section>
+
+<section id="users" class="section"><h2>User Management</h2><div class="card"><input class="input" id="userSearch" placeholder="Search by name, ID or email"></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Coins</th><th>Status</th><th>Action</th></tr></thead><tbody id="userTable"></tbody></table></div></div></section>
+
+<section id="blocked" class="section"><h2>Blocked Users</h2><div class="card"><input class="input" id="blockedSearch" placeholder="Search blocked user..."></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr></thead><tbody id="blockedTable"></tbody></table></div></div></section>
+
+<section id="payments" class="section"><h2>Payment Records</h2><div class="warning">Payment records are for administration/auditing. Real-money processing must be handled by a compliant payment backend.</div>
+<div class="stats"><div class="stat"><span>Records</span><strong id="paymentCount">0</strong></div><div class="stat"><span>Pending</span><strong id="pendingPayments">0</strong></div><div class="stat"><span>Successful</span><strong id="successfulPayments">0</strong></div><div class="stat"><span>Failed</span><strong id="failedPayments">0</strong></div></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Status</th><th>Transaction ID</th></tr></thead><tbody id="paymentTable"></tbody></table></div></div>
+<div class="card" style="margin-top:18px"><h3>💸 Withdrawal Requests</h3>
+<p style="color:#777;margin:6px 0 14px">User withdrawal requests. Update the status after the manual payout workflow.</p>
+<div class="table-wrap"><table><thead><tr><th>Request ID</th><th>User</th><th>Amount</th><th>Method</th><th>Details</th><th>Submitted</th><th>Status</th><th>Action</th></tr></thead><tbody id="withdrawalTable"></tbody></table></div></div></section>
+
+<section id="limits" class="section"><h2>Platform Limits</h2><div class="card"><h3>Deposit Settings</h3>
+<label>Minimum Amount</label><input class="input" id="minDeposit" type="number" value="10"><label>Maximum Amount</label><input class="input" id="maxDeposit" type="number" value="10000">
+<button class="btn" id="saveDepositBtn">Save Deposit Settings</button></div>
+<div class="card"><h3>Withdrawal Settings</h3><label>Minimum Amount</label><input class="input" id="minWithdraw" type="number" value="50"><label>Maximum Amount</label><input class="input" id="maxWithdraw" type="number" value="10000"><button class="btn" id="saveWithdrawBtn">Save Withdrawal Settings</button></div></section>
+
+<section id="results" class="section"><h2>Results & Winners</h2>
+<div class="warning">Select a category and match. All joined players will appear below. Position, In Game Name, In Game UID and Winning Coins are all editable directly in the table — fix any wrong/missing player data here before saving, then publish the final result.</div>
+
+<div class="card" style="border-left:4px solid #16843b">
+<h3>⚡ Automatic Virtual Coin Reward</h3>
+<p style="color:#666;margin:7px 0 0;line-height:1.5">
+Set each player's <b>Winning Coins</b> in the result table. When
+<b>END MATCH &amp; PUBLISH RESULT</b> is clicked, eligible reward coins
+(amount &gt; 0) are automatically added to that user's virtual coin wallet
+and recorded in Coin Transactions.
+</p>
+<p style="color:#16843b;font-weight:800;margin-top:8px">✓ One-time distribution protection enabled</p>
+</div>
+
+
+<div class="card">
+<h3 style="margin-bottom:12px">Select Match</h3>
+<div class="form-grid">
+<select class="input" id="resultCategory"><option value="">Select Category</option></select>
+<select class="input" id="resultMatch"><option value="">Select Match</option></select>
+</div>
+<div id="resultMatchInfo" class="muted" style="font-size:13px;margin:10px 0"></div>
+
+<div class="table-wrap" style="margin-top:12px">
+<table>
+<thead><tr><th>Team No.</th><th>Position</th><th>In Game Name</th><th>In Game UID</th><th>Winning Coins</th><th>Result</th></tr></thead>
+<tbody id="joinedPlayersResultTable"><tr><td colspan="6" class="empty">Select Category and Match</td></tr></tbody>
+</table>
+</div>
+
+<!-- Kept for compatibility with the existing code; the visible editor is the table above. -->
+<select id="winnerUser" style="display:none"><option value="">Select Joined Player</option></select>
+<input id="winnerPosition" type="hidden">
+<input id="winnerPrize" type="hidden">
+<div id="selectedWinnerInfo" style="display:none"></div>
+
+<button class="btn success" id="saveResultBtn" style="margin-top:14px">SAVE ALL RESULTS</button>
+</div>
+
+<div class="card">
+<h3 style="margin-bottom:12px">End Match</h3>
+<div class="form-grid">
+<select class="input" id="endCategory"><option value="">Select Category</option></select>
+<select class="input" id="endMatchSelect"><option value="">Select Match</option></select>
+</div>
+<button class="btn success" id="endMatchBtn" style="margin-top:10px">END MATCH & PUBLISH RESULT</button>
+</div>
+
+<div class="card">
+<div class="table-wrap"><table><thead><tr>
+<th>Match</th><th>Player</th><th>Position</th><th>Winning Coins</th><th>Status</th><th>Action</th>
+</tr></thead><tbody id="resultTable"></tbody></table></div>
+</div>
+</section>
+
+<section id="banners" class="section"><h2>Banner Management</h2><div class="card"><div class="form-grid">
+<input class="input" id="bannerName" placeholder="Banner name"><input class="input" id="bannerUrl" placeholder="Image URL"><input class="input" id="bannerLink" placeholder="Click link"><input class="input" id="bannerOrder" type="number" placeholder="Order">
+</div><button class="btn" id="addBannerBtn">Add Banner</button></div><div class="card"><div id="bannerList"></div></div></section>
+
+<section id="notifications" class="section"><h2>Notifications</h2>
+<div class="card">
+<p style="color:#777;margin-bottom:15px">Joined User: notification sirf us tournament ke joined user ko bhejo.</p>
+<select class="input" id="notificationTournament"><option value="">Select tournament</option></select>
+<select class="input" id="notificationUser"><option value="">Select joined user</option></select>
+<input class="input" id="notificationTitle" placeholder="Notification title"><textarea class="input" id="notificationBody" placeholder="Message"></textarea>
+<button class="btn" id="sendNotificationBtn">Send Notification</button></div>
+
+<div class="card">
+<h3 style="margin-bottom:12px">📢 Broadcast — All Users</h3>
+<p style="color:#777;margin-bottom:12px">Ye notification app ke saare registered users ko (jinka FCM token hai) ek saath bheji jayegi — kisi tournament se related nahi.</p>
+<input class="input" id="broadcastTitle" placeholder="Notification title">
+<textarea class="input" id="broadcastBody" placeholder="Message"></textarea>
+<button class="btn" id="sendBroadcastBtn">Send to All Users</button>
+<div id="broadcastStatus" style="margin-top:8px;color:#777;font-size:13px"></div>
+</div>
+<div class="card" id="announcementCard"> <h3 style="margin-bottom:12px">📢 Announcements</h3> <input class="input" id="announcementTitle" placeholder="Announcement title"> <textarea class="input" id="announcementBody" placeholder="Announcement message"></textarea> <button class="btn" id="saveAnnouncementBtn">Publish Announcement</button> </div> <div class="card" id="homeMegaphoneCard">
+<h3>📣 Home Megaphone / Notice Bar</h3>
+<p style="color:#777;margin:7px 0 12px">Ye message User Panel ke Home page ke megaphone/notice bar mein show hoga.</p>
+<input class="input" id="megaTitle" placeholder="Notice title (optional)">
+<textarea class="input" id="megaMessage" placeholder="Megaphone message"></textarea>
+<div class="form-grid">
+<label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="megaEnabled" checked> Show on Home</label>
+<input class="input" id="megaLink" placeholder="Optional click link">
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+<button class="btn" id="saveMegaphoneBtn">Save Megaphone</button>
+<button class="btn danger" id="disableMegaphoneBtn">Disable</button>
+</div>
+<div id="megaStatus" style="margin-top:10px;color:#777;font-size:13px"></div>
+</div>
+</section>
+
+<section id="staff" class="section"><h2>Staff Management</h2>
+<div class="stats"><div class="stat"><span>Main Staff</span><strong id="mainStaffCount">0 / 5</strong></div><div class="stat"><span>Local Staff</span><strong id="localStaffCount">0 / 45</strong></div><div class="stat"><span>Total Limit</span><strong>50</strong></div><div class="stat"><span>Active Staff</span><strong id="activeStaff">0</strong></div></div>
+<div class="card"><h3>Create Staff</h3><div class="form-grid">
+<input class="input" id="staffName" placeholder="Staff Name"><input class="input" id="staffEmail" type="email" placeholder="Staff Email">
+<input class="input" id="createStaffId" placeholder="Staff ID (optional)"><input class="input" id="createStaffPassword" type="password" placeholder="Password">
+<select class="input" id="staffType"><option>Main Staff</option><option>Local Staff</option></select>
+</div><button class="btn" id="createStaffBtn">Create Staff</button></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Staff ID</th><th>Email</th><th>Type</th><th>Status</th><th>Action</th></tr></thead><tbody id="staffTable"></tbody></table></div></div></section>
+
+<section id="subscription" class="section"><h2>Subscription</h2><div class="card"><div class="form-grid">
+<input class="input" id="subName" placeholder="Plan Name"><input class="input" id="subPrice" type="number" placeholder="Price"><input class="input" id="subDays" type="number" placeholder="Duration Days"><select class="input" id="subStatus"><option>Active</option><option>Inactive</option></select>
+</div><label style="display:block;margin-top:10px">Features (ek line mein ek feature)</label><textarea class="input" id="subFeatures" placeholder="Golden name&#10;Verified blue tick&#10;No withdrawal fee"></textarea><button class="btn" id="createSubBtn">Create Plan</button></div><div class="card"><div class="table-wrap"><table><thead><tr><th>Plan</th><th>Price</th><th>Days</th><th>Features</th><th>Status</th><th>Action</th></tr></thead><tbody id="subscriptionTable"></tbody></table></div></div></section>
+
+<section id="leaderboard" class="section"><h2>Leaderboard</h2><div class="card"><div class="empty">Leaderboard data will be read from Firebase when user win/score records are available.</div></div></section>
+
+<section id="referral" class="section"><h2>Referral System</h2><div class="card"><div class="form-grid"><input class="input" id="refBonus" type="number" value="20" placeholder="Referral Bonus"><input class="input" id="refLimit" type="number" value="100" placeholder="Minimum Withdrawal"></div><button class="btn" id="saveReferralBtn">Save Referral Settings</button></div></section>
+
+<section id="support" class="section"><h2>Customer Support</h2><div class="card"><input class="input" id="supportNumber" placeholder="Support Number"><input class="input" id="supportLink" placeholder="Support Link"><button class="btn" id="saveSupportBtn">Save Support</button></div></section>
+
+<section id="reports" class="section"><h2>Reports</h2><div class="card"><button class="btn" id="userReportBtn">Users Report</button> <button class="btn" id="tournamentReportBtn">Tournament Report</button> <button class="btn" id="paymentReportBtn">Payment Report</button> <button class="btn" id="withdrawalReportBtn">Withdrawal Report</button></div></section>
+
+<section id="policies" class="section"><h2>Policies</h2><div class="card"><h3>Fair Play Policy</h3><textarea class="input" id="fairPlay">Fair play is mandatory. Cheating, hacking and unfair practices are prohibited.</textarea><button class="btn" id="savePoliciesBtn">Save Policies</button></div><div class="card"><h3>Terms & Conditions</h3><textarea class="input" id="terms">Terms and conditions of the tournament platform.</textarea></div><div class="card"><h3>Privacy Policy</h3><textarea class="input" id="privacy">Your account information is used only for operating the User Panel and its connected tournament features.</textarea></div></section>
+
+<section id="settings" class="section"><h2>Platform Settings</h2>
+<div class="card"><h3>Admin Settings</h3><input class="input" id="adminPhone1" placeholder="+91XXXXXXXXXX"><input class="input" id="adminPhone2" placeholder="+91XXXXXXXXXX"><input class="input" id="adminPhone3" placeholder="+91XXXXXXXXXX"><button class="btn" id="saveSettingsBtn">Save Admin Settings</button></div>
+<div class="card"><h3>Automatic Prize Rules</h3><select class="input" id="autoPrize"><option value="enabled">Enable Automatic Prize Calculation</option><option value="disabled">Disable Automatic Prize Calculation</option></select><button class="btn" id="savePrizeBtn">Save Prize Settings</button></div>
+<div class="card"><h3>Notification Backend</h3><input class="input" value="https://tournament-notification-backend-1.onrender.com" readonly></div>
+</section>
+
+</main></div>
+
+<div id="playersModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;padding:25px;overflow:auto">
+  <div style="max-width:950px;margin:20px auto;background:#fff;border-radius:14px;padding:18px;color:#17213a">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+      <h2 id="playersModalTitle">Joined Players</h2>
+      <button class="btn danger" id="closePlayersModal">Close</button>
+    </div>
+    <div id="playersModalBody" style="margin-top:15px"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut,setPersistence,inMemoryPersistence} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import {getDatabase,ref,get,set,push,remove,update,onValue,runTransaction} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyAoj08gRvPz11_yP-4zoRJROgBuVDq6QPo",
+authDomain:"devanshchubey-501f3.firebaseapp.com",
+databaseURL:"https://devanshchubey-501f3-default-rtdb.firebaseio.com",
+projectId:"devanshchubey-501f3",
+storageBucket:"devanshchubey-501f3.firebasestorage.app",
+messagingSenderId:"860669059809",
+appId:"1:860669059809:web:0b899ca06dac0424d64da0"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
+// Keep Staff login isolated to this page without using top-level await,
+// so the HTML also starts correctly in Android WebView/local-file mode.
+setPersistence(auth,inMemoryPersistence).catch(()=>{});
+const BACKEND="https://tournament-notification-backend-1.onrender.com";
+
+/*
+IMPORTANT:
+For /create-staff and /send-notification the backend must verify
+the Firebase ID token. Do NOT put ADMIN_API_KEY in this browser file.
+*/
+let currentStaff=null; let currentUser=null;
+let cache={users:{},tournaments:{},matches:{},staff:{},payments:{},results:{},banners:{},subscriptions:{},tournamentParticipants:{},categories:{},homeMegaphone:{},settings:{}};
+
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+const toast=m=>{const t=$("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",2800)};
+
+$("loginBtn").onclick=staffLogin;
+async function staffLogin(){
+ const id=$("staffId").value.trim().toUpperCase(), password=$("staffPassword").value;
+ $("loginError").textContent="";
+ if(!id||!password){$("loginError").textContent="Staff ID aur password enter karo.";return}
+ try{
+  const snap=await get(ref(db,"staff/"+id)); if(!snap.exists())throw new Error("Staff ID nahi mila.");
+  const data=snap.val(); if(String(data.status||"").toLowerCase()!=="active")throw new Error("Staff account active nahi hai.");
+  if(!data.email)throw new Error("Staff account mein email missing hai.");
+  const cred=await signInWithEmailAndPassword(auth,data.email,password); currentUser=cred.user;
+ }catch(e){console.error(e);$("loginError").textContent=authError(e)}
+}
+
+onAuthStateChanged(auth,async user=>{
+ if(!user){currentUser=null;currentStaff=null;showLogin();return}
+ currentUser=user;
+ try{
+  const snap=await get(ref(db,"staff")); const all=snap.val()||{};
+  const found=Object.entries(all).find(([id,s])=>s&&s.uid===user.uid);
+  if(!found){await signOut(auth);throw new Error("Ye Firebase account staff se linked nahi hai.");}
+  const [id,data]=found; if(String(data.status||"").toLowerCase()!=="active"){await signOut(auth);throw new Error("Staff account active nahi hai.");}
+  currentStaff={id,...data}; showApp(); setTimeout(gzaApplyRole,100);
+ }catch(e){console.error(e);showLogin();$("loginError").textContent=e.message}
+});
+
+function showApp(){$("loginPage").style.display="none";$("app").style.display="block";loadFirebase()}
+function showLogin(){$("loginPage").style.display="flex";$("app").style.display="none"}
+
+$("logoutBtn").onclick=async()=>{await signOut(auth);toast("Logged out")};
+
+$("menuBtn").onclick=()=>{
+ $("sidebar").classList.toggle("show");$("sidebar").classList.toggle("hide");$("content").classList.toggle("full")
+};
+function gzaShowSection(section,pushHistory){
+ const btn=document.querySelector(`.nav[data-section="${section}"]`);
+ if(!$(section)||!btn)return;
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ $(section).classList.add("active");
+ document.querySelectorAll(".nav").forEach(n=>n.classList.remove("active"));btn.classList.add("active");
+ if(innerWidth<900)$("sidebar").classList.remove("show");
+ if(pushHistory!==false)history.pushState({gzaSection:section},"","#"+section);
+}
+document.querySelectorAll(".nav[data-section]").forEach(btn=>btn.onclick=()=>gzaShowSection(btn.dataset.section,true));
+/* Phone/browser back button: go 1 step back through visited sections instead of leaving the app. */
+window.addEventListener("popstate",e=>{
+ const section=e.state?.gzaSection||"dashboard";
+ gzaShowSection(section,false);
+});
+if(!history.state)history.replaceState({gzaSection:"dashboard"},"","#dashboard");
+
+function authError(e){
+ const c=e?.code||"";
+ if(c.includes("invalid-credential")||c.includes("invalid-login-credentials"))return"Staff ID/password galat hai.";
+ if(c.includes("user-disabled"))return"Staff account disabled hai.";
+ if(c.includes("too-many-requests"))return"Bahut attempts ho gaye. Thodi der baad try karo.";
+ if(c.includes("operation-not-allowed"))return"Firebase Authentication mein Email/Password enable karo.";
+ return e?.message||"Login failed.";
+}
+
+async function loadFirebase(){
+ await Promise.all([
+  listen("users"),listen("tournaments"),listen("matches"),listen("staff"),
+  listen("payments"),listen("results"),listen("banners"),listen("subscriptions"),listen("homeMegaphone"),listen("categories"),
+  listen("tournamentParticipants"),
+  listen("coinTransactions"),listen("withdrawalRequests"),listen("announcements"),listen("notifications"),listen("settings")
+ ]);
+}
+
+function listen(path){
+ onValue(ref(db,path),snap=>{
+  cache[path]=snap.val()||{};
+  renderAll();
+ });
+}
+
+function values(path){return Object.entries(cache[path]||{}).map(([id,v])=>({id,...(v||{})}))}
+
+function renderAll(){
+ renderDashboard();renderTournaments();renderMatches();renderUsers();renderBlocked();renderStaff();
+ renderPayments();renderWithdrawalRequests();renderResults();renderBanners();renderSubscriptions();loadNotificationTournaments();
+}
+
+function renderDashboard(){
+ const u=values("users"),t=values("tournaments");
+ const tx=values("coinTransactions");
+ const depositCoins=tx.filter(x=>String(x.type||x.action||"").toLowerCase().includes("deposit"))
+   .reduce((sum,x)=>sum+Number(x.coins??x.amount??x.value??0),0);
+ const withdrawalCoins=tx.filter(x=>String(x.type||x.action||"").toLowerCase().includes("withdraw"))
+   .reduce((sum,x)=>sum+Number(x.coins??x.amount??x.value??0),0);
+ $("totalDepositCoins").textContent=Math.max(0,Math.round(depositCoins));
+ $("totalWithdrawalCoins").textContent=Math.max(0,Math.round(withdrawalCoins));
+ $("totalUsers").textContent=u.length;
+ $("activeUsers").textContent=u.filter(x=>String(x.status||"active").toLowerCase()!=="blocked").length;
+ $("blockedUsers").textContent=u.filter(x=>String(x.status||"").toLowerCase()==="blocked").length;
+ $("newUsers").textContent=u.filter(x=>x.createdAt&&Date.now()-Number(x.createdAt)<86400000).length;
+ $("totalTournaments").textContent=t.length;
+ $("upcoming").textContent=t.filter(x=>x.status==="Upcoming").length;
+ $("live").textContent=t.filter(x=>x.status==="Live").length;
+ $("completed").textContent=t.filter(x=>x.status==="Completed").length;
+ gzaDashboardPeriods();
+}
+
+/* Deposit/Withdrawal period summary (Today / Last 7 days / Last 30 days / All time) */
+function gzaDashboardPeriods(){
+ const now=Date.now();
+ const startOfToday=new Date();startOfToday.setHours(0,0,0,0);
+ const ranges={
+  Today:startOfToday.getTime(),
+  Week:now-7*86400000,
+  Month:now-30*86400000,
+  Total:0
+ };
+ const deposits=values("coinTransactions").filter(x=>String(x.type||x.action||"").toLowerCase().includes("deposit"));
+ const withdrawals=values("withdrawalRequests");
+ Object.entries(ranges).forEach(([label,since])=>{
+  const dep=deposits.filter(x=>Number(x.createdAt||0)>=since);
+  const wd=withdrawals.filter(x=>Number(x.createdAt||0)>=since);
+  const depSum=dep.reduce((s,x)=>s+Number(x.coins??x.amount??x.value??0),0);
+  const wdSum=wd.filter(x=>String(x.status||"").toLowerCase()==="paid").reduce((s,x)=>s+Number(x.amount||0),0);
+  const depEl=$("dw"+label+"Dep"),depCntEl=$("dw"+label+"DepCount"),wdEl=$("dw"+label+"Wd"),wdCntEl=$("dw"+label+"WdCount");
+  if(depEl)depEl.textContent=Math.max(0,Math.round(depSum));
+  if(depCntEl)depCntEl.textContent=dep.length;
+  if(wdEl)wdEl.textContent=Math.max(0,Math.round(wdSum));
+  if(wdCntEl)wdCntEl.textContent=wd.length;
+ });
+}
+
+function renderCategoryOptions(){
+ const current=$("tCategory").value||"";
+ const list=values("categories").sort((a,b)=>String(a.name||a.title||"").localeCompare(String(b.name||b.title||"")));
+ $("tCategory").innerHTML='<option value="">Select Category</option>'+list.map(c=>`<option value="${esc(c.name||c.title||c.id)}">${esc(c.title||c.name||c.id)}</option>`).join("");
+ if(current) $("tCategory").value=current;
+}
+function renderCategories(){
+ const a=values("categories");
+ $("categoryTable").innerHTML=a.length?a.map(c=>`<tr><td>${esc(c.title||"-")}</td><td>${esc(c.name||"-")}</td><td>${c.imageUrl?`<a href="${esc(c.imageUrl)}" target="_blank" rel="noopener">View</a>`:"-"}</td><td><button class="btn danger" data-del-category="${esc(c.id)}">Delete</button></td></tr>`).join(""):`<tr><td colspan="4" class="empty">No categories. Add one above.</td></tr>`;
+ document.querySelectorAll("[data-del-category]").forEach(b=>b.onclick=async()=>{
+   if(!confirm("Delete this category?"))return;
+   try{await remove(ref(db,"categories/"+b.dataset.delCategory));toast("Category deleted")}catch(e){console.error(e);toast(e.message||"Delete failed")}
+ });
+ renderCategoryOptions();
+}
+$("addCategoryBtn").onclick=async()=>{
+ const title=$("categoryTitle").value.trim(),name=$("categoryName").value.trim(),imageUrl=$("categoryImage").value.trim();
+ if(!title||!name||!imageUrl){toast("Category title, name and image URL required");return}
+ try{
+   await push(ref(db,"categories"),{title,name,imageUrl,createdAt:Date.now(),createdBy:currentUser?.uid||""});
+   $("categoryTitle").value="";$("categoryName").value="";$("categoryImage").value="";
+   toast("Category added");
+ }catch(e){console.error(e);toast(e.message||"Category save failed")}
+}
+
+$("tMatchType")?.addEventListener("change",()=>{
+ const type=$("tMatchType").value;
+ $("tPlayersPerTeam").value=type==="Squad"?4:type==="Duo"?2:1;
+});
+$("createTournamentBtn").onclick=async()=>{
+ const type=$("tMatchType")?.value||"Solo";
+ const playersPerTeam=type==="Squad"?4:type==="Duo"?2:1;
+ const limit=Number($("tLimit").value||0);
+ if(limit<1){toast("Player Limit required");return}
+ if(limit%playersPerTeam!==0){toast(`${type} match ke liye Player Limit ${playersPerTeam} ka multiple hona chahiye.`);return}
+ const obj={
+   name:$("tName").value.trim(),
+   game:$("tGame").value,
+   category:$("tCategory").value,
+   fee:Number($("tFee").value||0),
+   prizePool:Number($("tPrizePool").value||0),
+   imageUrl:$("tImageUrl").value.trim(),
+   limit,
+   date:$("tDate").value,
+   rules:$("tRules").value,
+   prizeMode:$("prizeMode").value,
+   prizeRules:$("prizeRules").value,
+   matchType:type,
+   playersPerTeam,
+   teamCount:Math.ceil(limit/playersPerTeam),
+   perKillEnabled:!!$("tPerKill")?.checked,
+   perKillAmount:Number($("tPerKillAmount")?.value||0),
+   status:"Upcoming",
+   createdAt:Date.now()
+ };
+ if(!obj.name){toast("Tournament name required");return}
+ if(obj.prizePool<0){toast("Prize Pool invalid");return}
+ try{
+   const tr=push(ref(db,"tournaments"));
+   await set(tr,obj);
+   const tournamentId=tr.key;
+   await push(ref(db,"matches"),{
+     tournamentId,
+     name:obj.name,
+     tournamentName:obj.name,
+     category:obj.category,
+     categoryName:obj.category,
+     categoryId:obj.category,
+     game:obj.game,
+     matchType:type,
+     playersPerTeam,
+     teamCount:obj.teamCount,
+     limit:obj.limit,
+     time:obj.date,
+     date:obj.date,
+     prizePool:obj.prizePool,
+     imageUrl:obj.imageUrl,
+     status:"Upcoming",
+     room:"",
+     password:"",
+     roomVisible:false,
+     createdAt:Date.now()
+   });
+   $("tName").value="";$("tPrizePool").value="";$("tImageUrl").value="";$("tPerKill").checked=false;$("tPerKillAmount").value="";
+   toast(`${type} tournament created with linked match.`);
+ }catch(e){console.error(e);toast(e.message||"Tournament creation failed")}
+};
+
+function renderTournaments(){
+ const a=values("tournaments");
+ $("tournamentTable").innerHTML=a.length?a.map(t=>`<tr><td>${esc(t.name)}</td><td>${esc(t.game)}</td><td>${esc(t.category)}</td><td>${esc(t.matchType||"Solo")}</td><td>${esc(t.fee)}</td><td>${esc(t.prizePool??0)}</td><td>${esc(t.limit)}</td><td>${esc(t.status)}</td><td><button class="btn danger" data-del-t="${esc(t.id)}">Delete</button></td></tr>`).join(""):`<tr><td colspan="10" class="empty">No tournaments</td></tr>`;
+ document.querySelectorAll("[data-del-t]").forEach(b=>b.onclick=async()=>{if(confirm("Delete tournament?")){await remove(ref(db,"tournaments/"+b.dataset.delT));toast("Tournament deleted")}});
+}
+
+function renderMatches(){
+ const a=values("matches");
+ $("matchTable").innerHTML=a.length?a.map(m=>`<tr><td>${esc(m.name)}</td><td>${esc(m.time)}</td><td>${esc(m.room)}</td><td>${esc(m.status)}</td><td><button class="btn danger" data-del-m="${esc(m.id)}">Delete</button></td></tr>`).join(""):`<tr><td colspan="5" class="empty">No matches</td></tr>`;
+ document.querySelectorAll("[data-del-m]").forEach(b=>b.onclick=async()=>{if(confirm("Delete match?"))await remove(ref(db,"matches/"+b.dataset.delM))});
+}
+
+function gzaEditUserWallet(id){ gzaOpenWalletEdit(id); }
+function renderUsers(filter=""){
+ const a=values("users").filter(u=>{const q=String(filter||"").toLowerCase();return !q||[u.id,u.name,u.email,u.ign,u.uidGame,u.gameId].some(v=>String(v||"").toLowerCase().includes(q))});
+ $("userTable").innerHTML=a.length?a.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.name||u.displayName||"-")}</td><td>${esc(u.email||"-")}</td><td>🪙 ${esc(u.coins??0)}</td><td>${esc(u.status||"active")}</td><td><div class="crud-actions"><button type="button" class="btn blue" data-wallet-user="${esc(u.id)}">Edit User</button><button type="button" class="btn danger" data-block="${esc(u.id)}">Block</button></div></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No users</td></tr>`;
+ document.querySelectorAll("[data-wallet-user]").forEach(b=>b.onclick=()=>gzaOpenWalletEdit(b.dataset.walletUser));
+ document.querySelectorAll("[data-block]").forEach(b=>b.onclick=()=>blockUser(b.dataset.block));
+}
+$("userSearch").oninput=e=>renderUsers(e.target.value);
+
+async function blockUser(id){
+ const u=cache.users[id];if(!u)return;
+ await update(ref(db,"users/"+id),{status:"blocked",blockedAt:Date.now()});toast("User blocked");
+}
+function renderBlocked(){
+ const a=values("users").filter(u=>String(u.status||"").toLowerCase()==="blocked");
+ $("blockedTable").innerHTML=a.length?a.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>Blocked</td><td><button class="btn success" data-unblock="${esc(u.id)}">Unblock</button></td></tr>`).join(""):`<tr><td colspan="5" class="empty">No blocked users</td></tr>`;
+ document.querySelectorAll("[data-unblock]").forEach(b=>b.onclick=async()=>{await update(ref(db,"users/"+b.dataset.unblock),{status:"active"});toast("User unblocked")});
+}
+$("blockedSearch").oninput=e=>{
+ const q=e.target.value.toLowerCase();
+ const a=values("users").filter(u=>String(u.status||"").toLowerCase()==="blocked"&&[u.id,u.name,u.email].some(v=>String(v||"").toLowerCase().includes(q)));
+ $("blockedTable").innerHTML=a.length?a.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>Blocked</td><td><button class="btn success" onclick="location.reload()">Refresh</button></td></tr>`).join(""):`<tr><td colspan="5" class="empty">No blocked users</td></tr>`;
+};
+
+function renderPayments(){
+ const a=values("payments");$("paymentCount").textContent=a.length;$("pendingPayments").textContent=a.filter(x=>x.status==="pending").length;$("successfulPayments").textContent=a.filter(x=>x.status==="success").length;$("failedPayments").textContent=a.filter(x=>x.status==="failed").length;
+ $("paymentTable").innerHTML=a.length?a.map(p=>`<tr><td>${esc(p.userId)}</td><td>${esc(p.type)}</td><td>${esc(p.amount)}</td><td>${esc(p.status)}</td><td>${esc(p.transactionId)}</td></tr>`).join(""):`<tr><td colspan="5" class="empty">No payment records</td></tr>`;
+}
+function renderWithdrawalRequests(){
+  const rows=values("withdrawalRequests").sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+  const el=$("withdrawalTable"); if(!el)return;
+  const xesc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  const label=s=>{s=String(s||"submitted").toLowerCase();if(["paid","approved","completed"].includes(s))return"PAID";if(["rejected","cancelled","canceled"].includes(s))return"REJECTED";if(["processing","under_review"].includes(s))return"PROCESSING";return"SUBMITTED"};
+  el.innerHTML=rows.length?rows.map(r=>{
+    const d=r.details||{};
+    const details=r.method==="bank"
+      ? `A/C: ${xesc(d.accountNumber||"—")} · IFSC: ${xesc(d.ifsc||"—")} · ${xesc(d.accountHolder||"—")}`
+      : r.method==="redeem"
+        ? `Code: ${xesc(d.redeemCode||"—")}`
+        : `UPI: ${xesc(d.upiId||"—")} · ${xesc(d.holderName||"—")}`;
+    const st=label(r.status),when=r.createdAt?new Date(Number(r.createdAt)).toLocaleString():"—";
+    const cls=st==="PAID"?"green":st==="REJECTED"?"red":"badge";
+    return `<tr><td>${xesc(r.requestId||r.id||"—")}</td>
+      <td>${xesc(r.userName||r.uid||"—")}<br><small>${xesc(r.email||"")}</small></td>
+      <td>🪙 ${Number(r.amount||0)}</td><td>${xesc(r.methodLabel||r.method||"—")}</td>
+      <td style="white-space:normal;min-width:230px">${details}</td><td>${xesc(when)}</td>
+      <td><span class="badge ${cls}">${st}</span></td>
+      <td><div class="crud-actions">
+        <button class="btn blue" data-wd-status="processing" data-wd-id="${xesc(r.id)}">Processing</button>
+        <button class="btn success" data-wd-status="paid" data-wd-id="${xesc(r.id)}">Paid</button>
+        <button class="btn danger" data-wd-status="rejected" data-wd-id="${xesc(r.id)}">Reject</button>
+      </div></td></tr>`;
+  }).join(""):`<tr><td colspan="8" class="empty">No withdrawal requests</td></tr>`;
+  el.querySelectorAll("[data-wd-status]").forEach(btn=>btn.onclick=()=>updateWithdrawalStatus(btn.dataset.wdId,btn.dataset.wdStatus));
+}
+
+async function updateWithdrawalStatus(id,status){
+  const row=cache.withdrawalRequests?.[id]; if(!row)return;
+  if(["paid","rejected"].includes(status) && !confirm(`Set ${row.requestId||id} to ${status.toUpperCase()}?`))return;
+  try{
+    const note=status==="paid"?"Manual payout marked as paid.":status==="rejected"?"Withdrawal request rejected.":"Withdrawal request is being processed.";
+    await update(ref(db,"withdrawalRequests/"+id),{status,adminNote:note,updatedAt:Date.now(),updatedBy:currentUser?.uid||""});
+    toast("Withdrawal status updated: "+status.toUpperCase());
+  }catch(e){console.error(e);toast(e.message||"Could not update withdrawal");}
+}
+
+
+$("saveResultBtn").onclick=async()=>{
+ const match=$("resultMatch").value.trim(),user=$("winnerUser").value.trim(),position=$("winnerPosition").value,prize=$("winnerPrize").value||0;
+ if(!match||!user||!position){toast("Match ID, User ID and Position required");return}
+ await push(ref(db,"results"),{match,user,position:Number(position),prize:Number(prize),createdAt:Date.now(),submittedBy:currentUser?.uid||""});toast("Result saved");
+};
+function renderResults(){const a=values("results");$("resultTable").innerHTML=a.length?a.map(r=>`<tr><td>${esc(r.match)}</td><td>${esc(r.user)}</td><td>${esc(r.position)}</td><td>${esc(r.prize)}</td></tr>`).join(""):`<tr><td colspan="4" class="empty">No results</td></tr>`}
+
+$("addBannerBtn").onclick=async()=>{
+ const name=$("bannerName").value.trim(),url=$("bannerUrl").value.trim();if(!name||!url){toast("Banner name and image URL required");return}
+ await push(ref(db,"banners"),{name,url,link:$("bannerLink").value,order:Number($("bannerOrder").value||0),createdAt:Date.now()});toast("Banner added");
+};
+function renderBanners(){const a=values("banners");$("bannerList").innerHTML=a.length?a.map(b=>`<div class="card"><b>${esc(b.name)}</b><br><img src="${esc(b.url)}" style="width:100%;max-width:420px;height:140px;object-fit:cover;border-radius:8px;margin:10px 0"><br><button class="btn danger" data-del-b="${esc(b.id)}">Delete</button></div>`).join(""):`<div class="empty">No banners</div>`;document.querySelectorAll("[data-del-b]").forEach(x=>x.onclick=async()=>remove(ref(db,"banners/"+x.dataset.delB)))}
+
+async function getIdToken(){if(!auth.currentUser)throw new Error("Staff login required");return auth.currentUser.getIdToken(true)}
+
+async function backendPost(path,body){
+ const token=await getIdToken();
+ const r=await fetch(BACKEND+path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(body)});
+ const data=await r.json().catch(()=>({}));
+ if(!r.ok)throw new Error(data.message||"Backend request failed");
+ return data;
+}
+
+$("createStaffBtn").onclick=async()=>{
+ const name=$("staffName").value.trim(),email=$("staffEmail").value.trim(),password=$("createStaffPassword").value,type=$("staffType").value,id=$("createStaffId").value.trim();
+ if(!name||!email||!password){toast("Name, email and password required");return}
+ try{const result=await backendPost("/create-staff",{name,email,password,type,staffId:id||null});toast("Staff created: "+result.staff.staffId);$("staffName").value="";$("staffEmail").value="";$("createStaffPassword").value="";$("createStaffId").value=""}catch(e){console.error(e);toast(e.message)}
+};
+
+function renderStaff(){
+ const a=values("staff"),main=a.filter(s=>s.type==="Main Staff").length,local=a.filter(s=>s.type==="Local Staff").length,active=a.filter(s=>String(s.status||"").toLowerCase()==="active").length;
+ $("mainStaffCount").textContent=main+" / 5";$("localStaffCount").textContent=local+" / 45";$("activeStaff").textContent=active;
+ $("staffTable").innerHTML=a.length?a.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.id)}</td><td>${esc(s.email)}</td><td>${esc(s.type)}</td><td>${esc(s.status)}</td><td><button class="btn" data-staff-toggle="${esc(s.id)}">${String(s.status).toLowerCase()==="active"?"Block":"Activate"}</button></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No staff</td></tr>`;
+ document.querySelectorAll("[data-staff-toggle]").forEach(b=>b.onclick=async()=>{const id=b.dataset.staffToggle,s=cache.staff[id],newStatus=String(s.status).toLowerCase()==="active"?"Blocked":"Active";await update(ref(db,"staff/"+id),{status:newStatus});try{const token=await getIdToken();await fetch(BACKEND+"/staff-status",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({staffId:id,status:newStatus})})}catch(e){}});
+}
+
+function flattenedParticipants(){
+ const out=[];
+ Object.entries(cache.tournamentParticipants||{}).forEach(([tid,node])=>{
+   if(!node)return;
+   if(Array.isArray(node)){
+     node.forEach((p,i)=>{if(p)out.push({id:String(i),tournamentId:tid,...p})});
+   }else if(node.tournamentId||node.userId){
+     out.push({id:tid,...node,tournamentId:node.tournamentId||tid});
+   }else{
+     Object.entries(node).forEach(([uid,p])=>{
+       if(p)out.push({id:uid,tournamentId:tid,userId:p.userId||uid,...p});
+     });
+   }
+ });
+ return out;
+}
+function loadNotificationTournaments(){
+ const sel=$("notificationTournament"),a=flattenedParticipants(),ids={};
+ a.forEach(p=>{if(p&&p.tournamentId)ids[p.tournamentId]=p.tournamentName||p.tournament||p.tournamentId});
+ sel.innerHTML='<option value="">Select tournament</option>'+Object.entries(ids).map(([id,n])=>`<option value="${esc(id)}">${esc(n)}</option>`).join("");
+}
+$("notificationTournament").onchange=()=>{
+ const tid=$("notificationTournament").value,sel=$("notificationUser");
+ if(!tid){sel.innerHTML='<option value="">Select joined user</option>';return}
+ const a=flattenedParticipants().filter(p=>String(p.tournamentId)===String(tid)&&(!p.status||String(p.status).toLowerCase()==="joined"));
+ sel.innerHTML='<option value="">Select joined user</option>'+a.map(p=>`<option value="${esc(p.userId||p.uid||"")}">${esc(p.userName||p.name||p.inGameName||p.userId||p.uid||"-")} — ${esc(p.userId||p.uid||"-")}</option>`).join("");
+};
+$("sendNotificationBtn").onclick=async()=>{
+ const tid=$("notificationTournament").value,uid=$("notificationUser").value,title=$("notificationTitle").value.trim(),body=$("notificationBody").value.trim();
+ if(!tid||!uid||!title||!body){toast("Tournament, joined user, title and message required");return}
+ const user=cache.users[uid]||{};
+ const payload={tournamentId:String(tid),userId:String(uid),title,body,type:"notification",broadcast:false,sentBy:currentUser?.uid||"",createdAt:Date.now()};
+ try{
+  await push(ref(db,"notifications"),payload);
+  if(user.fcmToken){
+   try{await backendPost("/send-notification",{token:user.fcmToken,title,body,data:{tournamentId:String(tid),userId:String(uid)}})}catch(e){console.warn("FCM send failed; in-app notification was saved.",e)}
+  }
+  toast(user.fcmToken?"Notification sent":"Notification saved for user (FCM token not available)");
+ }catch(e){console.error(e);toast(e.message||"Notification save failed")}
+};
+
+$("sendBroadcastBtn")?.addEventListener("click",async()=>{
+ const title=$("broadcastTitle").value.trim(),body=$("broadcastBody").value.trim();
+ if(!title||!body){toast("Title aur message required");return}
+ const users=values("users");
+ if(!users.length){toast("Koi registered user nahi mila");return}
+ if(!confirm(`Ye notification ${users.length} registered users ko bheji jayegi. Continue?`))return;
+ const statusEl=$("broadcastStatus");
+ $("sendBroadcastBtn").disabled=true;
+ let sent=0,failed=0;
+ for(const u of users){
+  if(u.fcmToken){
+   try{await backendPost("/send-notification",{token:u.fcmToken,title,body,data:{broadcast:"true"}});sent++;}catch(e){failed++;}
+  }
+  if(statusEl)statusEl.textContent=`Processing... ${sent+failed}/${users.length} (push sent: ${sent}, failed: ${failed})`;
+ }
+ try{await push(ref(db,"notifications"),{broadcast:true,title,body,type:"notification",totalUsers:users.length,sent,failed,sentBy:currentUser?.uid||"",createdAt:Date.now()})}catch(e){console.error(e);toast(e.message||"Broadcast save failed");return}
+ $("sendBroadcastBtn").disabled=false;
+ toast(`Broadcast done: ${sent} sent, ${failed} failed`);
+ if(statusEl)statusEl.textContent=`Last broadcast: ${sent} sent, ${failed} failed (${new Date().toLocaleString()})`;
+});
+
+
+$("saveAnnouncementBtn")?.addEventListener("click",async()=>{
+ const title=$("announcementTitle")?.value.trim()||"",body=$("announcementBody")?.value.trim()||"";
+ if(!title||!body){toast("Announcement title and message required");return}
+ try{await push(ref(db,"announcements"),{title,body,type:"announcement",createdAt:Date.now(),publishedBy:currentUser?.uid||""});$("announcementTitle").value="";$("announcementBody").value="";toast("Announcement published");}catch(e){console.error(e);toast(e.message||"Announcement save failed")}
+});
+
+/* ================= HOME MEGAPHONE CONTROL ================= */
+function loadHomeMegaphone(){
+  const m=cache.homeMegaphone||{};
+  const title=$("megaTitle"),msg=$("megaMessage"),enabled=$("megaEnabled"),link=$("megaLink"),status=$("megaStatus");
+  if(title)title.value=m.title||"";
+  if(msg)msg.value=m.message||m.body||"";
+  if(enabled)enabled.checked=m.enabled!==false;
+  if(link)link.value=m.link||"";
+  if(status)status.textContent=m.updatedAt?"Last updated: "+new Date(Number(m.updatedAt)).toLocaleString():"Not configured";
+}
+$("saveMegaphoneBtn") && ($("saveMegaphoneBtn").onclick=async()=>{
+  const message=$("megaMessage").value.trim();
+  if(!message){toast("Megaphone message required");return}
+  try{
+    await update(ref(db,"homeMegaphone"),{
+      title:$("megaTitle").value.trim(),
+      message,
+      enabled:$("megaEnabled").checked,
+      link:$("megaLink").value.trim(),
+      updatedAt:Date.now(),
+      updatedBy:currentUser?.uid||""
+    });
+    toast("Home megaphone saved");
+  }catch(e){console.error(e);toast(e.message||"Could not save megaphone")}
+});
+$("disableMegaphoneBtn") && ($("disableMegaphoneBtn").onclick=async()=>{
+  try{
+    await update(ref(db,"homeMegaphone"),{enabled:false,updatedAt:Date.now(),updatedBy:currentUser?.uid||""});
+    toast("Home megaphone disabled");
+  }catch(e){console.error(e);toast(e.message||"Could not disable megaphone")}
+});
+
+$("createSubBtn").onclick=async()=>{
+ const name=$("subName").value.trim();if(!name){toast("Plan name required");return}
+ const features=$("subFeatures").value.split("\n").map(f=>f.trim()).filter(Boolean);
+ await push(ref(db,"subscriptions"),{name,price:Number($("subPrice").value||0),days:Number($("subDays").value||0),features,status:$("subStatus").value,createdAt:Date.now()});
+ $("subFeatures").value="";
+ toast("Subscription saved");
+};
+function renderSubscriptions(){const a=values("subscriptions");$("subscriptionTable").innerHTML=a.length?a.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.price)}</td><td>${esc(s.days)}</td><td>${(s.features||[]).map(esc).join("<br>")||"-"}</td><td>${esc(s.status)}</td></tr>`).join(""):`<tr><td colspan="5" class="empty">No plans</td></tr>`}
+
+async function saveNode(path,obj,msg){await update(ref(db,path),obj);toast(msg)}
+$("saveDepositBtn").onclick=()=>saveNode("settings/deposit",{min:Number($("minDeposit").value),max:Number($("maxDeposit").value)},"Deposit settings saved");
+$("saveWithdrawBtn").onclick=()=>saveNode("settings/withdraw",{min:Number($("minWithdraw").value),max:Number($("maxWithdraw").value)},"Withdrawal settings saved");
+$("saveReferralBtn").onclick=()=>saveNode("settings/referral",{bonus:Number($("refBonus").value),limit:Number($("refLimit").value)},"Referral settings saved");
+$("saveSupportBtn").onclick=()=>saveNode("settings/support",{number:$("supportNumber").value,link:$("supportLink").value},"Support saved");
+$("savePoliciesBtn").onclick=()=>saveNode("settings/policies",{fairPlay:$("fairPlay").value,terms:$("terms").value},"Policies saved");
+$("saveSettingsBtn").onclick=()=>saveNode("settings/admin",{phone1:$("adminPhone1").value,phone2:$("adminPhone2").value,phone3:$("adminPhone3").value},"Admin settings saved");
+$("savePrizeBtn").onclick=()=>saveNode("settings/prize",{mode:$("autoPrize").value},"Prize settings saved");
+$("userReportBtn").onclick=()=>toast("Users: "+values("users").length);
+$("tournamentReportBtn").onclick=()=>toast("Tournaments: "+values("tournaments").length);
+$("paymentReportBtn").onclick=()=>toast("Payments: "+values("payments").length);
+$("withdrawalReportBtn").onclick=()=>toast("Withdrawals: "+values("withdrawalRequests").length);
+
+function updateClock(){$("clock").textContent=new Date().toLocaleTimeString()}setInterval(updateClock,1000);updateClock();
+
+/* Basic screenshot/screen-recording deterrent (best-effort only — a browser/webview
+   cannot fully block OS-level screenshots). Blurs sensitive content when the app
+   loses focus/visibility, and disables right-click/long-press context menu + text
+   selection on content. For real protection on Android, enable FLAG_SECURE in the
+   native WebView wrapper. */
+(function gzaScreenshotGuard(){
+ const style=document.createElement("style");
+ style.textContent=`
+  body.gza-hidden-blur .app{filter:blur(18px);transition:filter .15s}
+  .app,.app *{ -webkit-user-select:none;user-select:none }
+  .app input,.app textarea{ -webkit-user-select:text;user-select:text }
+ `;
+ document.head.appendChild(style);
+ document.addEventListener("contextmenu",e=>e.preventDefault());
+ document.addEventListener("visibilitychange",()=>{
+  document.body.classList.toggle("gza-hidden-blur",document.hidden);
+ });
+ window.addEventListener("blur",()=>document.body.classList.add("gza-hidden-blur"));
+ window.addEventListener("focus",()=>document.body.classList.remove("gza-hidden-blur"));
+})();
+
+/* ===== FINAL CRUD FIX: Admin ===== */
+function gzaAdminEsc(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function gzaAdminVals(p){return Object.entries(cache[p]||{}).map(([id,v])=>({id,...(v||{})}))}
+async function gzaAdminDelete(path,id,label){
+ if(!confirm("Delete "+(label||"this item")+"?"))return;
+ try{await remove(ref(db,path+"/"+id));toast("Deleted successfully")}catch(e){console.error(e);toast(e.message||"Delete failed")}
+}
+async function gzaAdminEditCategory(id){
+ const v=cache.categories?.[id]||{};
+ const title=prompt("Category Title:",v.title||"");if(title===null)return;
+ const name=prompt("Category Name:",v.name||"");if(name===null)return;
+ const imageUrl=prompt("Image URL:",v.imageUrl||"");if(imageUrl===null)return;
+ if(!title.trim()||!name.trim()){toast("Title and category name required");return}
+ await update(ref(db,"categories/"+id),{title:title.trim(),name:name.trim(),imageUrl:imageUrl.trim(),updatedAt:Date.now(),updatedBy:currentUser?.uid||""});
+ toast("Category updated");
+}
+function gzaAdminRenderCategories(){
+ const a=gzaAdminVals("categories"),table=$("categoryTable");if(!table)return;
+ table.innerHTML=a.length?a.map(c=>`<tr><td>${gzaAdminEsc(c.title||"-")}</td><td>${gzaAdminEsc(c.name||"-")}</td><td>${c.imageUrl?`<a href="${gzaAdminEsc(c.imageUrl)}" target="_blank" rel="noopener">View</a>`:"-"}</td><td><div class="crud-actions"><button class="btn blue" data-gza-edit-cat="${gzaAdminEsc(c.id)}">Edit</button><button class="btn danger" data-gza-del-cat="${gzaAdminEsc(c.id)}">Delete</button></div></td></tr>`).join(""):`<tr><td colspan="4" class="empty">No categories. Add one above.</td></tr>`;
+ document.querySelectorAll("[data-gza-edit-cat]").forEach(b=>b.onclick=()=>gzaAdminEditCategory(b.dataset.gzaEditCat));
+ document.querySelectorAll("[data-gza-del-cat]").forEach(b=>b.onclick=()=>gzaAdminDelete("categories",b.dataset.gzaDelCat,"this category"));
+ gzaAdminRenderCategoryDropdown();
+}
+function gzaAdminRenderCategoryDropdown(){
+ const sel=$("tCategory");if(!sel)return;
+ const current=sel.value||"";
+ const a=gzaAdminVals("categories").sort((x,y)=>String(x.title||x.name||"").localeCompare(String(y.title||y.name||"")));
+ sel.innerHTML='<option value="">Select Category</option>'+a.map(c=>`<option value="${gzaAdminEsc(c.name||c.title||c.id)}">${gzaAdminEsc(c.title||c.name||c.id)}</option>`).join("");
+ if(current&&a.some(c=>String(c.name||c.title||c.id)===current))sel.value=current;
+}
+async function gzaAdminEditSubscription(id){
+ const v=cache.subscriptions?.[id]||{};
+ const name=prompt("Plan Name:",v.name||"");if(name===null)return;
+ const price=prompt("Price:",v.price??0);if(price===null)return;
+ const days=prompt("Duration Days:",v.days??0);if(days===null)return;
+ const featuresStr=prompt("Features (comma se separate karo):",(v.features||[]).join(", "));if(featuresStr===null)return;
+ const status=prompt("Status (Active/Inactive):",v.status||"Active");if(status===null)return;
+ if(!name.trim()){toast("Plan name required");return}
+ const features=featuresStr.split(",").map(f=>f.trim()).filter(Boolean);
+ await update(ref(db,"subscriptions/"+id),{name:name.trim(),price:Number(price||0),days:Number(days||0),features,status:status.trim()||"Active",updatedAt:Date.now(),updatedBy:currentUser?.uid||""});
+ toast("Subscription updated");
+}
+function gzaAdminRenderSubscriptions(){
+ const a=gzaAdminVals("subscriptions"),table=$("subscriptionTable");if(!table)return;
+ table.innerHTML=a.length?a.map(s=>`<tr><td>${gzaAdminEsc(s.name||"-")}</td><td>${gzaAdminEsc(s.price??0)}</td><td>${gzaAdminEsc(s.days??0)}</td><td>${(s.features||[]).map(gzaAdminEsc).join("<br>")||"-"}</td><td>${gzaAdminEsc(s.status||"Active")}</td><td><div class="crud-actions"><button class="btn blue" data-gza-edit-sub="${gzaAdminEsc(s.id)}">Edit</button><button class="btn danger" data-gza-del-sub="${gzaAdminEsc(s.id)}">Delete</button></div></td></tr>`).join(""):`<tr><td colspan="6" class="empty">No plans</td></tr>`;
+ document.querySelectorAll("[data-gza-edit-sub]").forEach(b=>b.onclick=()=>gzaAdminEditSubscription(b.dataset.gzaEditSub));
+ document.querySelectorAll("[data-gza-del-sub]").forEach(b=>b.onclick=()=>gzaAdminDelete("subscriptions",b.dataset.gzaDelSub,"this subscription plan"));
+}
+/* GEN Z ARENA FIX: auto-refund entry fee to every joined player's coin wallet
+   when a tournament/match is cancelled. Uses tournamentParticipants' own
+   per-record id (flat structure, see FIX note above gzaMParticipants) so each
+   participant is only ever refunded once (feeRefunded flag). */
+async function gzaRefundEntryFees(tid,reason){
+ const t=cache.tournaments?.[tid]||{};
+ const fee=Number(t.fee||0);
+ const participants=gzaMParticipants(tid).filter(p=>!p.status||String(p.status).toLowerCase()==="joined");
+ let refunded=0;
+ for(const p of participants){
+   const uid=p.userId||p.uid||p.id;
+   const amount=Number(p.fee||fee);
+   if(!uid||p.feeRefunded===true||amount<=0)continue;
+   try{
+     await runTransaction(ref(db,"users/"+uid+"/coins"),v=>Number(v||0)+amount);
+     await push(ref(db,"coinTransactions"),{userId:uid,tournamentId:tid,tournamentName:t.name||"",type:"entry_refund",coins:amount,reason:reason||"Tournament/Match cancelled",createdAt:Date.now(),createdBy:currentUser?.uid||""});
+     await update(ref(db,"tournamentParticipants/"+p.id),{feeRefunded:true,feeRefundedAt:Date.now()});
+     refunded++;
+   }catch(e){console.error("Entry fee refund failed for",uid,e)}
+ }
+ return refunded;
+}
+async function gzaAdminCancelTournament(id){
+ const t=cache.tournaments?.[id]||{};
+ if(!t.name){toast("Tournament not found");return}
+ const joined=gzaMPlayerCount(id);
+ const limit=Number(t.limit||t.playerLimit||t.slots||0);
+ const state=String(t.status||"Upcoming").toLowerCase();
+ if(state==="cancelled"){toast("Tournament already cancelled.");return}
+ if(state==="completed"||state==="live"){toast("Live/Completed tournament cannot be cancelled.");return}
+ if(!limit){toast("Player limit not configured.");return}
+ if(joined>=limit){toast(`Slots full (${joined}/${limit}). Full tournament ko cancel nahi kar sakte.`);return}
+ const reason=prompt(`Cancel reason (${joined}/${limit} players joined):`,"Not enough players joined before the scheduled start.");
+ if(reason===null)return;
+ const cleanReason=reason.trim();
+ if(!cleanReason){toast("Cancellation reason required.");return}
+ if(!confirm(`Cancel "${t.name}"?\n\nReason: ${cleanReason}\n\nUsers ko ye cancellation reason dikhaya jayega.`))return;
+ try{
+  const now=Date.now();
+  await update(ref(db,"tournaments/"+id),{
+   status:"Cancelled",
+   cancellationReason:cleanReason,
+   cancelledAt:now,
+   cancelledBy:currentUser?.uid||""
+  });
+  const linked=gzaAdminVals("matches").filter(m=>String(m.tournamentId||"")===String(id));
+  await Promise.all(linked.map(m=>update(ref(db,"matches/"+m.id),{
+   status:"Cancelled",
+   live:false,
+   roomVisible:false,
+   cancellationReason:cleanReason,
+   cancelledAt:now,
+   cancelledBy:currentUser?.uid||""
+  })));
+  const refunded=await gzaRefundEntryFees(id,cleanReason);
+  toast(`Tournament cancelled.${refunded?` ${refunded} player(s) refunded their entry fee.`:""}`);
+  gzaRefreshMatchResultUI();
+ }catch(e){console.error(e);toast(e.message||"Tournament cancellation failed")}
+}
+
+async function gzaAdminEditTournament(id){
+ const v=cache.tournaments?.[id]||{};
+ const name=prompt("Tournament Name:",v.name||"");if(name===null)return;
+ const cat=prompt("Category:",v.category||"");if(cat===null)return;
+ const fee=prompt("Entry Amount:",v.fee??0);if(fee===null)return;
+ const prizePool=prompt("Prize Pool (virtual coins):",v.prizePool??0);if(prizePool===null)return;
+ const imageUrl=prompt("Image URL:",v.imageUrl||"");if(imageUrl===null)return;
+ const limit=prompt("Player Limit:",v.limit??0);if(limit===null)return;
+ const status=prompt("Status (Upcoming/Live/Completed):",v.status||"Upcoming");if(status===null)return;
+ const cleanCat=cat.trim();
+ await update(ref(db,"tournaments/"+id),{
+   name:name.trim(),category:cleanCat,fee:Number(fee||0),prizePool:Number(prizePool||0),
+   imageUrl:imageUrl.trim(),limit:Number(limit||0),status:status.trim()||"Upcoming",
+   matchType:v.matchType||"Solo",playersPerTeam:Number(v.playersPerTeam||1),
+   teamCount:Number(v.teamCount||Math.ceil(Number(limit||0)/Number(v.playersPerTeam||1))),
+   date:v.date||"",rules:v.rules||"",prizeMode:v.prizeMode||"Automatic Prize Distribution",
+   prizeRules:v.prizeRules||"",
+   updatedAt:Date.now(),updatedBy:currentUser?.uid||""
+ });
+ // Keep every linked match's category in sync — otherwise the match keeps
+ // its OLD category and silently disappears from every category-filtered
+ // match dropdown (Room/Result/End Match/All Tournament). Always re-sync
+ // (not just on change) so this also repairs tournaments already broken
+ // by this — just open Edit and save to fix them.
+ if(cleanCat){
+  const linked=gzaAdminVals("matches").filter(m=>String(m.tournamentId||"")===String(id));
+  await Promise.all(linked.map(m=>update(ref(db,"matches/"+m.id),{
+   category:cleanCat,categoryName:cleanCat,categoryId:cleanCat
+  })));
+ }
+ toast("Tournament updated");
+}
+async function gzaAdminEditMatch(id){
+ const v=cache.matches?.[id]||{};
+ const name=prompt("Match Name:",v.name||"");if(name===null)return;
+ const time=prompt("Schedule:",v.time||"");if(time===null)return;
+ const room=prompt("Room ID:",v.room||"");if(room===null)return;
+ const status=prompt("Status (Upcoming/Live/Completed):",v.status||"Upcoming");if(status===null)return;
+ await update(ref(db,"matches/"+id),{
+  name:name.trim(),time:time.trim(),room:room.trim(),
+  status:status.trim()||"Upcoming",
+  roomVisible:v.roomVisible===true,
+  password:v.password||"",
+  live:v.live===true,ended:v.ended===true,
+  updatedAt:Date.now(),updatedBy:currentUser?.uid||""
+});
+ toast("Match updated");
+}
+async function gzaAdminDeleteTournament(id){
+ const t=cache.tournaments?.[id]||{};
+ if(!t.name){toast("Tournament not found");return}
+ const state=String(t.status||"Upcoming").toLowerCase();
+ if(state==="deleted"){toast("Tournament already deleted.");return}
+ const reason=prompt("Delete reason (users will see this):","Tournament removed by admin.");
+ if(reason===null)return;
+ const cleanReason=reason.trim();
+ if(!cleanReason){toast("Delete reason required.");return}
+ if(!confirm(`Delete "${t.name}"?\n\nReason: ${cleanReason}\n\nUsers ko ye reason dikhaya jayega. Tournament "Deleted Tournaments" list mein rahega, hamesha ke liye data nahi hataya jayega.`))return;
+ try{
+  const now=Date.now();
+  await update(ref(db,"tournaments/"+id),{
+   status:"Deleted",
+   deletionReason:cleanReason,
+   deletedAt:now,
+   deletedBy:currentUser?.uid||""
+  });
+  const linked=gzaAdminVals("matches").filter(m=>String(m.tournamentId||"")===String(id));
+  await Promise.all(linked.map(m=>update(ref(db,"matches/"+m.id),{
+   status:"Deleted",
+   live:false,
+   roomVisible:false,
+   deletionReason:cleanReason,
+   deletedAt:now,
+   deletedBy:currentUser?.uid||""
+  })));
+  toast("Tournament deleted. Reason saved for users.");
+  gzaRefreshMatchResultUI();
+ }catch(e){console.error(e);toast(e.message||"Tournament deletion failed")}
+}
+function gzaAdminRefreshTables(){
+ const all=gzaAdminVals("tournaments");
+ const t=all.filter(x=>{const s=String(x.status||"").toLowerCase();return s!=="cancelled"&&s!=="deleted"});
+ const tt=$("tournamentTable");
+ if(tt){tt.innerHTML=t.length?t.map(x=>`<tr><td>${gzaAdminEsc(x.name||"-")}</td><td>${gzaAdminEsc(x.game||"-")}</td><td>${gzaAdminEsc(x.category||"-")}</td><td>${gzaAdminEsc(x.matchType||"Solo")}</td><td>${gzaAdminEsc(x.fee??0)}</td><td>${gzaAdminEsc(x.prizePool??0)}</td><td>${gzaAdminEsc(x.limit??0)}</td><td>${x.imageUrl?`<a href="${gzaAdminEsc(x.imageUrl)}" target="_blank" rel="noopener">View</a>`:"-"}</td><td>${gzaAdminEsc(x.status||"Upcoming")}</td><td>${gzaAdminEsc(x.cancellationReason||"-")}</td><td><div class="crud-actions"><button class="btn blue" data-gza-edit-t="${gzaAdminEsc(x.id)}">Edit</button>${(()=>{const joined=gzaMPlayerCount(x.id),limit=Number(x.limit||x.playerLimit||x.slots||0),state=String(x.status||"Upcoming").toLowerCase();return (limit>0&&joined<limit&&state!=="cancelled"&&state!=="completed"&&state!=="live")?`<button class="btn danger" data-gza-cancel-t="${gzaAdminEsc(x.id)}">Cancel</button>`:""})()}<button class="btn danger" data-gza-del-t="${gzaAdminEsc(x.id)}">Delete</button></div></td></tr>`).join(""):`<tr><td colspan="11" class="empty">No tournaments</td></tr>`;document.querySelectorAll("[data-gza-edit-t]").forEach(b=>b.onclick=()=>gzaAdminEditTournament(b.dataset.gzaEditT));document.querySelectorAll("[data-gza-cancel-t]").forEach(b=>b.onclick=()=>gzaAdminCancelTournament(b.dataset.gzaCancelT));document.querySelectorAll("[data-gza-del-t]").forEach(b=>b.onclick=()=>gzaAdminDeleteTournament(b.dataset.gzaDelT))}
+ const cancelled=all.filter(x=>String(x.status||"").toLowerCase()==="cancelled"),ct=$("cancelledTournamentTable");
+ if(ct)ct.innerHTML=cancelled.length?cancelled.map(x=>`<tr><td>${gzaAdminEsc(x.name||"-")}</td><td>${gzaAdminEsc(x.game||"-")}</td><td>${gzaAdminEsc(x.category||"-")}</td><td>${gzaAdminEsc(x.cancellationReason||"-")}</td><td>${x.cancelledAt?new Date(Number(x.cancelledAt)).toLocaleString():"-"}</td></tr>`).join(""):`<tr><td colspan="5" class="empty">No cancelled tournaments</td></tr>`;
+ const deleted=all.filter(x=>String(x.status||"").toLowerCase()==="deleted"),dt=$("deletedTournamentTable");
+ if(dt)dt.innerHTML=deleted.length?deleted.map(x=>`<tr><td>${gzaAdminEsc(x.name||"-")}</td><td>${gzaAdminEsc(x.game||"-")}</td><td>${gzaAdminEsc(x.category||"-")}</td><td>${gzaAdminEsc(x.deletionReason||"-")}</td><td>${x.deletedAt?new Date(Number(x.deletedAt)).toLocaleString():"-"}</td></tr>`).join(""):`<tr><td colspan="5" class="empty">No deleted tournaments</td></tr>`;
+ const m=gzaAdminVals("matches"),mt=$("matchTable");
+ if(mt){mt.innerHTML=m.length?m.map(x=>`<tr><td>${gzaAdminEsc(x.name||"-")}</td><td>${gzaAdminEsc(x.time||"-")}</td><td>${gzaAdminEsc(x.room||"-")}</td><td>${gzaAdminEsc(x.status||"Upcoming")}</td><td><div class="crud-actions"><button class="btn blue" data-gza-edit-m="${gzaAdminEsc(x.id)}">Edit</button><button class="btn danger" data-gza-del-m="${gzaAdminEsc(x.id)}">Delete</button></div></td></tr>`).join(""):`<tr><td colspan="5" class="empty">No matches</td></tr>`;document.querySelectorAll("[data-gza-edit-m]").forEach(b=>b.onclick=()=>gzaAdminEditMatch(b.dataset.gzaEditM));document.querySelectorAll("[data-gza-del-m]").forEach(b=>b.onclick=async()=>{await gzaAdminDelete("matches",b.dataset.gzaDelM,"this match");gzaRefreshMatchResultUI()})}
+ gzaAdminRenderCategories();gzaAdminRenderSubscriptions();
+}
+const gzaAdminOriginalRenderAll=renderAll;
+renderAll=function(){gzaAdminOriginalRenderAll();setTimeout(gzaAdminRefreshTables,0)};
+setTimeout(gzaAdminRefreshTables,500);
+
+
+
+/* ===== ALL TOURNAMENT: CATEGORY -> MATCH -> JOINED USERS ===== */
+function gzaAllTournamentRefreshCategories(){
+ const sel=$("allTournamentCategory");if(!sel)return;
+ const old=sel.value,cats=gzaActiveMatchCategories();
+ sel.innerHTML='<option value="">Select Category</option>'+cats.map(c=>`<option value="${gzaAdminEsc(c.name||c.title||c.id)}">${gzaAdminEsc(c.title||c.name||c.id)}</option>`).join("");
+ if(old&&cats.some(c=>String(c.name||c.title||c.id)===old))sel.value=old;
+ gzaAllTournamentFillMatches();
+}
+function gzaAllTournamentFillMatches(){
+ const sel=$("allTournamentMatch");if(!sel)return;
+ const cat=$("allTournamentCategory")?.value||"";
+ const old=sel.value;
+ const arr=cat?gzaCategoryMatches(cat):[];
+ arr.sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+ sel.innerHTML=(cat?'<option value="">Select Match</option>':'<option value="">Select Category first</option>')+
+   (cat&&!arr.length?'<option value="" disabled>No match found in this category</option>':'')+
+   arr.map(m=>`<option value="${gzaAdminEsc(m.id)}">${gzaAdminEsc(m.name||m.tournamentName||m.id)} — ${gzaAdminEsc(gzaTournamentName(m.tournamentId||""))}</option>`).join("");
+ if(old&&arr.some(m=>String(m.id)===String(old)))sel.value=old;
+ gzaAllTournamentRenderPlayers();
+}
+function gzaAllTournamentRenderPlayers(){
+ const mid=$("allTournamentMatch")?.value||"",body=$("allTournamentPlayers"),summary=$("allTournamentSummary"),title=$("allTournamentTitle");
+ if(!body)return;
+ if(!mid){body.innerHTML='<tr><td colspan="7" class="empty">Select a category and match.</td></tr>';if(summary)summary.textContent="";if(title)title.textContent="Joined Players";return;}
+ const m=cache.matches?.[mid]||{},tid=m.tournamentId||"";
+ const ps=gzaJoined(tid).filter(p=>!p.status||String(p.status).toLowerCase()==="joined");
+ const t=cache.tournaments?.[tid]||{};
+ if(summary)summary.textContent=`Total Joiners: ${ps.length} / ${Number(t.limit||t.playerLimit||t.slots||0)||"—"} • Match: ${m.name||mid} • ${m.time||""}`;
+ if(title)title.textContent=`Joined Players — ${m.name||mid} (${ps.length})`;
+ body.innerHTML=ps.length?ps.map((p,i)=>{
+   const uid=p.userId||p.uid||p.id||"",u=cache.users?.[uid]||{};
+   return `<tr><td>${gzaAdminEsc(p.position||p.slot||p.teamNo||i+1)}</td><td>${gzaAdminEsc(p.userName||p.name||u.name||"-")}</td><td>${gzaAdminEsc(u.email||p.email||"-")}</td><td>${gzaAdminEsc(p.inGameName||p.ign||u.ign||"-")}</td><td>${gzaAdminEsc(p.inGameUid||p.uidGame||u.uidGame||"-")}</td><td>${gzaAdminEsc(uid)}</td><td>${p.joinedAt?new Date(Number(p.joinedAt)).toLocaleString():"-"}</td></tr>`;
+ }).join(""):'<tr><td colspan="7" class="empty">No joined users for this match.</td></tr>';
+}
+$("allTournamentCategory")?.addEventListener("change",()=>{
+ gzaAllTournamentRefreshCategories();
+ gzaAllTournamentFillMatches();
+});
+$("allTournamentMatch")?.addEventListener("change",gzaAllTournamentRenderPlayers);
+
+/* ===== MATCH + RESULT WORKFLOW FINAL ===== */
+function gzaMValues(path){return Object.entries(cache[path]||{}).map(([id,v])=>({id,...(v||{})}))}
+/* GEN Z ARENA FIX: tournamentParticipants is stored FLAT (push() directly under
+   "tournamentParticipants", each record carrying its own tournamentId/userId) —
+   it is NOT nested per-tournament. Every joined-players table must filter the
+   flat list by tournamentId instead of doing cache.tournamentParticipants[tid]. */
+function gzaAllParticipants(){
+ return Object.entries(cache.tournamentParticipants||{}).map(([id,v])=>v?({id,userId:v.userId||v.uid||id,...v}):null).filter(Boolean);
+}
+function gzaMParticipants(tid){
+ if(!tid)return [];
+ return gzaAllParticipants().filter(p=>String(p.tournamentId||"")===String(tid));
+}
+function gzaMPlayerCount(tid){
+ return gzaMParticipants(tid).filter(p=>!p.status||String(p.status).toLowerCase()==="joined").length;
+}
+function gzaMTournamentName(tid){const t=cache.tournaments?.[tid]||{};return t.name||t.title||tid}
+function gzaMRenderTournamentSelects(){
+ const a=gzaMValues("tournaments").sort((x,y)=>String(x.name||"").localeCompare(String(y.name||"")));
+ const opts='<option value="">Select Tournament</option>'+a.map(t=>`<option value="${gzaAdminEsc(t.id)}">${gzaAdminEsc(t.name||t.title||t.id)}</option>`).join("");
+ const s=$("matchTournament"); if(s){const old=s.value;s.innerHTML=opts;s.value=old}
+}
+function gzaMRenderMatchSelects(){
+ const a=gzaMValues("matches").sort((x,y)=>Number(y.createdAt||0)-Number(x.createdAt||0));
+ const opts='<option value="">Select Match</option>'+a.map(m=>`<option value="${gzaAdminEsc(m.id)}">${gzaAdminEsc(m.name||m.id)} — ${gzaAdminEsc(gzaMTournamentName(m.tournamentId||""))}</option>`).join("");
+ ["resultMatch","endMatchSelect"].forEach(id=>{const s=$(id);if(s){const old=s.value;s.innerHTML=opts;s.value=old}});
+}
+function gzaMStatus(m){
+ const s=String(m?.status||"").trim().toLowerCase();
+ if(s==="cancelled"||s==="canceled"||m?.cancelled===true)return "Cancelled";
+ if(s==="deleted"||m?.deleted===true)return "Deleted";
+ if(m.roomVisible)return "Room Released";
+ if(m.ended||s==="ended")return "Ended";
+ if(m.live||s==="live")return "Live";
+ return "Waiting for Slots";
+}
+async function gzaMCancelMatch(id){
+ const m=cache.matches?.[id];if(!m){toast("Match not found");return}
+ const reason=prompt("Cancel reason (users will see this):","Match cancelled by admin.");if(reason===null)return;
+ const clean=reason.trim();if(!clean){toast("Cancellation reason required.");return}
+ if(!confirm(`Cancel match "${m.name||id}"?\n\nReason: ${clean}`))return;
+ const now=Date.now();
+ await update(ref(db,"matches/"+id),{status:"Cancelled",live:false,roomVisible:false,cancellationReason:clean,cancelledAt:now,cancelledBy:currentUser?.uid||""});
+ let refunded=0;
+ if(m.tournamentId){
+   await update(ref(db,"tournaments/"+m.tournamentId),{status:"Cancelled",cancellationReason:clean,cancelledAt:now,cancelledBy:currentUser?.uid||""});
+   refunded=await gzaRefundEntryFees(m.tournamentId,clean);
+ }
+ toast(`Match cancelled.${refunded?` ${refunded} player(s) refunded their entry fee.`:""} User Panel se hide ho gaya.`);gzaRefreshMatchResultUI();
+}
+function gzaMRenderMatches(){
+ const a=gzaMValues("matches").filter(m=>String(m.status||"").toLowerCase()!=="deleted");
+ const table=$("matchTable"); if(!table)return;
+ table.innerHTML=a.length?a.map(m=>{
+   const tid=m.tournamentId||"";
+   const t=cache.tournaments?.[tid]||{};
+   const joined=gzaMPlayerCount(tid),limit=Number(t.limit||t.playerLimit||t.slots||0);
+   const full=limit>0&&joined>=limit;
+   const room=m.roomVisible?`${gzaAdminEsc(m.room||"-")} / ${gzaAdminEsc(m.password||"-")}`:"🔒 Hidden";
+   const status=gzaMStatus(m);
+   return `<tr>
+    <td>${m.imageUrl?`<img src="${gzaAdminEsc(m.imageUrl)}" alt="" style="width:42px;height:42px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-right:7px" onerror="this.style.display='none'">`:""}${gzaAdminEsc(m.name||"-")}<br><small>${gzaAdminEsc(m.id)}</small></td>
+    <td>${gzaAdminEsc(t.name||m.tournamentName||tid||"-")}</td>
+    <td>${joined}/${limit||"-"} ${full?"✅ Full":""}</td>
+    <td>${gzaAdminEsc(m.time||"-")}</td>
+    <td>${room}</td>
+    <td>${gzaAdminEsc(status)}</td>
+    <td><div class="crud-actions">
+      <button class="btn blue" data-gza-players="${gzaAdminEsc(m.id)}">Players</button>
+      ${(!m.roomVisible && m.room && m.password && full) ? `<button class="btn success" data-gza-release="${gzaAdminEsc(m.id)}">Release Room</button>` : ""}
+      ${(!m.live && !m.ended && !["ended","cancelled","canceled","deleted"].includes(String(m.status||"").toLowerCase())) ? `<button class="btn" data-gza-live="${gzaAdminEsc(m.id)}">Start Live</button>` : ""}
+      <button class="btn blue" data-gza-edit-match2="${gzaAdminEsc(m.id)}">Edit</button>
+      ${String(m.status||"").toLowerCase()!=="cancelled"&&String(m.status||"").toLowerCase()!=="deleted"?`<button class="btn danger" data-gza-cancel-match="${gzaAdminEsc(m.id)}">Cancel</button>`:""}
+      <button class="btn danger" data-gza-del-match2="${gzaAdminEsc(m.id)}">Delete</button>
+    </div></td>
+   </tr>`;
+ }).join(""):`<tr><td colspan="7" class="empty">No matches</td></tr>`;
+ document.querySelectorAll("[data-gza-players]").forEach(b=>b.onclick=()=>gzaMShowPlayers(b.dataset.gzaPlayers));
+ document.querySelectorAll("[data-gza-release]").forEach(b=>b.onclick=()=>gzaMReleaseRoom(b.dataset.gzaRelease));
+ document.querySelectorAll("[data-gza-live]").forEach(b=>b.onclick=()=>gzaMSetLive(b.dataset.gzaLive));
+ document.querySelectorAll("[data-gza-edit-match2]").forEach(b=>b.onclick=()=>gzaMEditMatch(b.dataset.gzaEditMatch2));
+ document.querySelectorAll("[data-gza-cancel-match]").forEach(b=>b.onclick=()=>gzaMCancelMatch(b.dataset.gzaCancelMatch));
+ document.querySelectorAll("[data-gza-del-match2]").forEach(b=>b.onclick=()=>gzaAdminDelete("matches",b.dataset.gzaDelMatch2,"this match"));
+}
+/* gzaMCreateMatch removed: matches are auto-created with the tournament now. */
+async function gzaMReleaseRoom(id){
+ const m=cache.matches?.[id];if(!m)return;
+ const tid=m.tournamentId, t=cache.tournaments?.[tid]||{}, joined=gzaMPlayerCount(tid),limit=Number(t.limit||t.playerLimit||t.slots||0);
+ if(!limit||joined<limit){toast(`Slots full nahi hain: ${joined}/${limit||0}`);return}
+ if(!m.room||!m.password){toast("Room ID aur Password pehle add karo.");return}
+ if(!confirm(`Slots full (${joined}/${limit}). Room details users ko release karna hai?`))return;
+ await update(ref(db,"matches/"+id),{roomVisible:true,status:"Room Released",roomReleasedAt:Date.now(),roomReleasedBy:currentUser?.uid||""});
+ toast("Room released. User Panel can now show Room ID/Password.");
+}
+async function gzaMSetLive(id){
+ if(!confirm("Match ko LIVE start karna hai?"))return;
+ await update(ref(db,"matches/"+id),{status:"Live",live:true,startedAt:Date.now(),startedBy:currentUser?.uid||""});toast("Match is LIVE");
+}
+async function gzaMEditMatch(id){
+ const m=cache.matches?.[id];if(!m)return;
+ const name=prompt("Match Name:",m.name||"");if(name===null)return;
+ const time=prompt("Schedule:",m.time||"");if(time===null)return;
+ const room=prompt("Room ID:",m.room||"");if(room===null)return;
+ const password=prompt("Room Password:",m.password||"");if(password===null)return;
+ await update(ref(db,"matches/"+id),{name:name.trim(),time:time.trim(),room:room.trim(),password:password.trim(),updatedAt:Date.now(),updatedBy:currentUser?.uid||""});
+ toast("Match updated");
+}
+function gzaMShowPlayers(matchId){
+ const m=cache.matches?.[matchId];if(!m)return;
+ const tid=m.tournamentId||"";
+ const ps=gzaMParticipants(tid).filter(p=>!p.status||String(p.status).toLowerCase()==="joined");
+ $("playersModalTitle").textContent=`Joined Players — ${m.name||matchId}`;
+ $("playersModalBody").innerHTML=ps.length?`<div class="table-wrap"><table><thead><tr><th>Position</th><th>Name</th><th>Email</th><th>In-Game Name</th><th>Game UID</th><th>User ID</th><th>Joined</th></tr></thead><tbody>${ps.map((p,i)=>{
+   const uid=p.userId||p.uid||p.id||"";
+   const u=cache.users?.[uid]||{};
+   return `<tr><td>${gzaAdminEsc(p.position||p.slot||p.teamNo||i+1)}</td><td>${gzaAdminEsc(p.userName||p.name||u.name||"-")}</td><td>${gzaAdminEsc(u.email||p.email||"-")}</td><td>${gzaAdminEsc(p.inGameName||p.ign||u.ign||"-")}</td><td>${gzaAdminEsc(p.inGameUid||p.uidGame||u.uidGame||"-")}</td><td>${gzaAdminEsc(uid)}</td><td>${p.joinedAt?new Date(Number(p.joinedAt)).toLocaleString():"-"}</td></tr>`;
+ }).join("")}</tbody></table></div>`:`<div class="empty">No joined players.</div>`;
+ $("playersModal").style.display="block";
+}
+$("closePlayersModal").onclick=()=>$("playersModal").style.display="none";
+$("playersModal").onclick=e=>{if(e.target.id==="playersModal")$("playersModal").style.display="none"};
+
+
+
+function gzaMRenderResultPlayerSelect(){
+ const tid=$("resultMatch").value,sel=$("winnerUser"),info=$("resultMatchInfo");
+ if(!tid){sel.innerHTML='<option value="">Select Joined Player</option>';info.textContent="";return}
+ const m=cache.matches?.[tid]||{},ps=gzaMParticipants(m.tournamentId||"").filter(p=>!p.status||String(p.status).toLowerCase()==="joined");
+ sel.innerHTML='<option value="">Select Joined Player</option>'+ps.map(p=>{const uid=p.userId||p.uid||p.id;const u=cache.users?.[uid]||{};return `<option value="${gzaAdminEsc(uid)}">${gzaAdminEsc(p.inGameName||p.ign||u.ign||u.name||uid)} — ${gzaAdminEsc(uid)}</option>`}).join("");
+ info.textContent=`${ps.length} joined players found for ${m.name||tid}.`;
+}
+$("resultMatch").onchange=gzaMRenderResultPlayerSelect;
+
+async function gzaMSaveWinner(){
+ const mid=$("resultMatch").value,uid=$("winnerUser").value,position=Number($("winnerPosition").value),prize=Number($("winnerPrize").value||0);
+ if(!mid||!uid||!position||position<1){toast("Match, player and position required");return}
+ if(prize<0){toast("Winning coins invalid");return}
+ const m=cache.matches?.[mid]||{},existing=gzaMValues("results").find(r=>String(r.matchId||r.match)===String(mid)&&String(r.userId||r.user)===String(uid));
+ if(existing){toast("This player already has a result for this match.");return}
+ const u=cache.users?.[uid]||{};
+ await push(ref(db,"results"),{matchId:mid,match:mid,matchName:m.name||"",tournamentId:m.tournamentId||"",tournamentName:m.tournamentName||gzaMTournamentName(m.tournamentId||""),userId:uid,user:uid,userName:u.name||"",inGameName:u.ign||"",position,prize,status:"pending",createdAt:Date.now(),submittedBy:currentUser?.uid||""});
+ toast("Winner/result added");
+ $("winnerPosition").value="";$("winnerPrize").value="";
+}
+$("saveResultBtn").onclick=gzaMSaveWinner;
+
+async function gzaMEndMatch(){
+ const mid=$("endMatchSelect").value;if(!mid){toast("Select match first");return}
+ const m=cache.matches?.[mid]||{};if(m.coinsDistributed||m.ended){toast("This match is already ended.");return}
+ const rs=gzaMValues("results").filter(r=>String(r.matchId||r.match)===String(mid));
+ if(!rs.length){toast("Pehle kam se kam ek winner/result add karo.");return}
+ if(!confirm(`End ${m.name||mid} and distribute ${rs.reduce((n,r)=>n+Number(r.prize||0),0)} virtual coins?`))return;
+ try{
+   /* One match-level guard prevents the same result from being distributed twice. */
+   const guard=await runTransaction(ref(db,"matches/"+mid+"/coinsDistributed"),v=>v===true?undefined:true);
+   if(!guard.committed){toast("Coins already distributed.");return}
+   for(const r of rs){
+     const uid=String(r.userId||r.user||""); if(!uid)continue;
+     await runTransaction(ref(db,"users/"+uid+"/coins"),v=>Number(v||0)+Number(r.prize||0));
+     await update(ref(db,"results/"+r.id),{status:"paid",coinsAwardedAt:Date.now(),awardedBy:currentUser?.uid||""});
+     await push(ref(db,"coinTransactions"),{userId:uid,matchId:mid,tournamentId:m.tournamentId||"",type:"match_winner",coins:Number(r.prize||0),position:Number(r.position||0),createdAt:Date.now(),createdBy:currentUser?.uid||""});
+   }
+   await update(ref(db,"matches/"+mid),{ended:true,status:"Ended",live:false,endedAt:Date.now(),endedBy:currentUser?.uid||""});
+   if(m.tournamentId)await update(ref(db,"tournaments/"+m.tournamentId),{status:"Completed",completedAt:Date.now()});
+   toast("Match ended and virtual coins distributed.");
+   gzaMRenderMatchSelects();
+ }catch(e){console.error(e);toast(e.message||"End match failed")}
+}
+$("endMatchBtn").onclick=gzaMEndMatch;
+
+function gzaMRenderResults(){
+ const a=gzaMValues("results");
+ $("resultTable").innerHTML=a.length?a.map(r=>`<tr>
+ <td>${gzaAdminEsc(r.matchName||r.match||r.matchId||"-")}<br><small>${gzaAdminEsc(r.matchId||r.match||"")}</small></td>
+ <td>${gzaAdminEsc(r.inGameName||r.userName||r.user||r.userId||"-")}<br><small>${gzaAdminEsc(r.userId||r.user||"")}</small></td>
+ <td>${gzaAdminEsc(r.position||"-")}</td><td>${gzaAdminEsc(r.prize||0)}</td>
+ <td>${String(r.status||"pending")==="paid"?"✅ Distributed":`<button class="btn danger" data-gza-del-result="${gzaAdminEsc(r.id)}">Delete</button>`}</td>
+ </tr>`).join(""):`<tr><td colspan="5" class="empty">No results yet</td></tr>`;
+ document.querySelectorAll("[data-gza-del-result]").forEach(b=>b.onclick=()=>gzaAdminDelete("results",b.dataset.gzaDelResult,"this result"));
+}
+
+const gzaMOldRenderAll=renderAll;
+renderAll=function(){
+ gzaMOldRenderAll();
+ setTimeout(()=>{gzaMRenderTournamentSelects();gzaMRenderMatchSelects();gzaMRenderMatches();gzaMRenderResults();gzaMRenderResultPlayerSelect()},0);
+};
+setTimeout(()=>{gzaMRenderTournamentSelects();gzaMRenderMatchSelects();gzaMRenderMatches();gzaMRenderResults()},700);
+
+
+/* ===== CATEGORY -> MATCH CASCADE + ROOM + RESULT WORKFLOW ===== */
+function gzaCatValues(){return Object.entries(cache.categories||{}).map(([id,v])=>({id,...(v||{})})).sort((a,b)=>String(a.title||a.name||"").localeCompare(String(b.title||b.name||"")))}
+function gzaMatchValues(){return Object.entries(cache.matches||{}).map(([id,v])=>({id,...(v||{})}))}
+function gzaResultValues(){return Object.entries(cache.results||{}).map(([id,v])=>({id,...(v||{})}))}
+function gzaCategoryName(id){const c=cache.categories?.[id]||{};return c.name||c.title||id}
+function gzaCategoryRefs(value){
+ const v=String(value??"").trim().toLowerCase();
+ if(!v)return [];
+ const refs=[v];
+ Object.entries(cache.categories||{}).forEach(([id,c])=>{
+  c=c||{}; const vals=[id,c.name,c.title,c.categoryId,c.categoryName].map(x=>String(x??"").trim().toLowerCase()).filter(Boolean);
+  if(vals.includes(v)) vals.forEach(x=>{if(!refs.includes(x))refs.push(x)});
+ });
+ return refs;
+}
+function gzaNormCategory(v){return String(v??"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"");}
+function gzaEditDistance(a,b){
+ a=String(a||"");b=String(b||"");
+ if(a===b)return 0;
+ if(!a.length)return b.length;if(!b.length)return a.length;
+ const prev=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){
+  const cur=[i];
+  for(let j=1;j<=b.length;j++)cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+  for(let j=0;j<cur.length;j++)prev[j]=cur[j];
+ }
+ return prev[b.length];
+}
+function gzaSameCategory(a,b){
+ const aa=String(a??"").trim().toLowerCase(), bb=String(b??"").trim().toLowerCase();
+ if(!aa||!bb)return false;
+ if(aa===bb)return true;
+ const ar=gzaCategoryRefs(aa),br=gzaCategoryRefs(bb);
+ if(ar.some(x=>br.includes(x)))return true;
+ // Handle harmless legacy spelling differences such as SURVIVSL/SURVIVAL.
+ const na=gzaNormCategory(aa),nb=gzaNormCategory(bb);
+ if(na&&nb&&(na===nb||gzaEditDistance(na,nb)<=2))return true;
+ return ar.some(x=>br.some(y=>{const nx=gzaNormCategory(x),ny=gzaNormCategory(y);return nx&&ny&&(nx===ny||gzaEditDistance(nx,ny)<=2)}));
+}
+function gzaMatchCategory(m){
+ const t=cache.tournaments?.[m?.tournamentId]||{};
+ return m?.categoryId||m?.category||m?.categoryName||t.categoryId||t.category||t.categoryName||"";
+}
+function gzaIsInactiveMatch(m){
+ const s=String(m?.status||"").trim().toLowerCase();
+ return m?.deleted===true || m?.cancelled===true || s==="deleted" || s==="cancelled" || s==="canceled";
+}
+function gzaTournamentInactive(t){
+ const s=String(t?.status||"").trim().toLowerCase();
+ return t?.deleted===true || t?.cancelled===true || s==="deleted" || s==="cancelled" || s==="canceled";
+}
+function gzaMatchTournamentId(m){
+ return String(m?.tournamentId||m?.tournamentID||m?.tournament||m?.tid||m?.tournament_id||"").trim();
+}
+function gzaCategoryMatches(cat,matches=gzaMatchValues()){
+ if(!cat)return matches.filter(m=>!gzaIsInactiveMatch(m));
+ const selected=String(cat||"").trim();
+ const tournaments=Object.entries(cache.tournaments||{}).map(([id,v])=>({id,...(v||{})}));
+ const tournamentById=new Map(tournaments.map(t=>[String(t.id),t]));
+ const activeTournaments=tournaments.filter(t=>!gzaTournamentInactive(t));
+ const tournamentIds=new Set();
+ activeTournaments.forEach(t=>{
+   const vals=[t.categoryId,t.category,t.categoryName,t.gameCategory,t.categoryTitle]
+     .map(x=>String(x??"").trim()).filter(Boolean);
+   if(vals.some(v=>gzaSameCategory(v,selected)))tournamentIds.add(String(t.id));
+ });
+ const out=[],seen=new Set();
+ matches.filter(m=>!gzaIsInactiveMatch(m)).forEach(m=>{
+   const tid=gzaMatchTournamentId(m);
+   const t=tournamentById.get(tid)||{};
+   const matchVals=[m.categoryId,m.category,m.categoryName,m.categoryTitle,m.gameCategory,m.tournamentCategory,m.tournamentCategoryName]
+     .map(x=>String(x??"").trim()).filter(Boolean);
+   const direct=matchVals.some(v=>gzaSameCategory(v,selected));
+   const linked=!!tid&&tournamentIds.has(tid);
+   const tournamentVals=[t.categoryId,t.category,t.categoryName,t.gameCategory,t.categoryTitle]
+     .map(x=>String(x??"").trim()).filter(Boolean);
+   const linkedByTournament=!!tid&&tournamentVals.some(v=>gzaSameCategory(v,selected));
+   // Legacy matches sometimes have no tournamentId/category fields. In that case,
+   // link by the match name/tournamentName to an active tournament in the selected category.
+   const nameVals=[m.name,m.title,m.matchName,m.tournamentName,m.tournamentTitle]
+     .map(x=>String(x??"").trim()).filter(Boolean);
+   const legacyLinked= !tid && nameVals.some(n=>activeTournaments.some(t=>{
+     const tcat=[t.categoryId,t.category,t.categoryName,t.gameCategory,t.categoryTitle].some(v=>gzaSameCategory(v,selected));
+     const tn=String(t.name||t.title||t.tournamentName||"").trim();
+     return tcat && tn && (n.toLowerCase()===tn.toLowerCase() || n.toLowerCase().includes(tn.toLowerCase()) || tn.toLowerCase().includes(n.toLowerCase()));
+   }));
+   // Very old match records can contain only the match name (for example
+   // "BR SURVIVSL SOLO...") and no category/tournamentId at all. Match the
+   // category against the first/name tokens as a final legacy fallback.
+   const selectedNorm=gzaNormCategory(selected);
+   const nameCategoryLinked=selectedNorm && nameVals.some(n=>{
+     const nn=gzaNormCategory(n);
+     if(!nn)return false;
+     if(nn.includes(selectedNorm)||selectedNorm.includes(nn))return true;
+     const words=String(n).trim().split(/[^a-zA-Z0-9]+/).filter(Boolean);
+     return words.some(w=>{
+       const nw=gzaNormCategory(w);
+       return nw && (nw===selectedNorm || gzaEditDistance(nw,selectedNorm)<=2 || nw.includes(selectedNorm) || selectedNorm.includes(nw));
+     });
+   });
+   if(direct||linked||linkedByTournament||legacyLinked||nameCategoryLinked){const id=String(m.id);if(!seen.has(id)){seen.add(id);out.push(m)}}
+ });
+ return out;
+}
+function gzaActiveMatchCategories(){
+ const cats=gzaCatValues();
+ return cats.filter(c=>gzaCategoryMatches(c.name||c.title||c.id).length>0);
+}
+function gzaFillMatchCategories(ids){
+ const cats=gzaActiveMatchCategories();
+ ids.forEach(id=>{
+  const s=$(id);if(!s)return;
+  const old=s.value;
+  s.innerHTML='<option value="">Select Category</option>'+cats.map(c=>`<option value="${gzaAdminEsc(c.name||c.title||c.id)}">${gzaAdminEsc(c.title||c.name||c.id)}</option>`).join("");
+  const match=cats.find(c=>gzaSameCategory(c.name||c.title||c.id,old));
+  if(match)s.value=match.name||match.title||match.id;
+ });
+}
+function gzaJoined(tid){ return gzaMParticipants(tid); }
+function gzaPlayerCount(tid){return gzaJoined(tid).filter(p=>!p.status||String(p.status).toLowerCase()==="joined").length}
+function gzaTournamentName(tid){const t=cache.tournaments?.[tid]||{};return t.name||t.title||tid}
+
+function gzaFillCategories(ids){
+ const cats=gzaCatValues();
+ ids.forEach(id=>{
+  const s=$(id);if(!s)return;
+  const old=s.value;
+  s.innerHTML='<option value="">Select Category</option>'+cats.map(c=>`<option value="${gzaAdminEsc(c.name||c.title||c.id)}">${gzaAdminEsc(c.title||c.name||c.id)}</option>`).join("");
+  const match=cats.find(c=>gzaSameCategory(c.name||c.title||c.id,old));
+  if(match)s.value=match.name||match.title||match.id;
+ });
+}
+function gzaFillTournamentsForCreate(){
+ const cat=$("matchCategory"),sel=$("matchTournament");if(!sel)return;
+ const c=cat?.value||"", all=Object.entries(cache.tournaments||{}).map(([id,v])=>({id,...(v||{})}));
+ const arr=c?all.filter(t=>gzaSameCategory(t.categoryId||t.category||t.categoryName,c)):all;
+ sel.innerHTML='<option value="">Select Tournament</option>'+arr.map(t=>`<option value="${gzaAdminEsc(t.id)}">${gzaAdminEsc(t.name||t.title||t.id)}</option>`).join("");
+}
+function gzaFillMatches(categoryId,selectId){
+ const sel=$(selectId);if(!sel)return;
+ const cat=$(categoryId)?.value||"";
+ const old=sel.value;
+ const arr=cat?gzaCategoryMatches(cat):[];
+ arr.sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+ let html=cat?'<option value="">Select Match</option>':'<option value="">Select Category first</option>';
+ if(cat && !arr.length) html+='<option value="" disabled>No match found in this category</option>';
+ html+=arr.map(m=>{
+   const tid=m.tournamentId||m.tournamentID||m.tournament||m.tid||"";
+   const tn=(m.tournamentName||gzaTournamentName(tid)||"").trim();
+   return `<option value="${gzaAdminEsc(m.id)}">${gzaAdminEsc(m.name||m.title||tn||m.id)}${tn&&String(m.name||m.title||"").trim().toLowerCase()!==tn.toLowerCase()?` — ${gzaAdminEsc(tn)}`:""}</option>`;
+ }).join("");
+ sel.innerHTML=html;
+ if(old&&arr.some(m=>String(m.id)===String(old)))sel.value=old;
+}
+function gzaSyncRoomFields(){
+ const id=$("roomMatch")?.value||"",m=cache.matches?.[id]||{};
+ if($("roomIdUpdate"))$("roomIdUpdate").value=m.room||"";
+ if($("roomPasswordUpdate"))$("roomPasswordUpdate").value=m.password||"";
+}
+function gzaResultMode(m){
+ const t=cache.tournaments?.[m?.tournamentId]||{};
+ return m?.matchType||t.matchType||"Solo";
+}
+function gzaResultPlayersPerTeam(m){
+ const mode=gzaResultMode(m);
+ return Number(m?.playersPerTeam|| (mode==="Squad"?4:mode==="Duo"?2:1));
+}
+function gzaResultJoinedPlayers(){
+ const mid=$("resultMatch")?.value||"",m=cache.matches?.[mid]||{};
+ return gzaJoined(m.tournamentId||"").filter(p=>!p.status||String(p.status).toLowerCase()==="joined");
+}
+function gzaResultTeamKey(p,i,m){
+ const ppt=gzaResultPlayersPerTeam(m);
+ return String(p.teamNo??p.team??p.teamNumber??p.slot??Math.floor(i/ppt)+1);
+}
+function gzaSyncResultPlayers(){
+ const mid=$("resultMatch")?.value||"",table=$("joinedPlayersResultTable"),info=$("resultMatchInfo");
+ if(!table)return;
+ const m=cache.matches?.[mid]||{},ps=gzaResultJoinedPlayers(),mode=gzaResultMode(m),ppt=gzaResultPlayersPerTeam(m);
+ if(!mid){
+   table.innerHTML='<tr><td colspan="6" class="empty">Select Category and Match</td></tr>';
+   if(info)info.textContent="";
+   return;
+ }
+ const teams={};
+ ps.forEach((p,i)=>{const k=gzaResultTeamKey(p,i,m);(teams[k]??=[]).push({p,i});});
+ if(info)info.textContent=`${mode} • Total Joiners: ${ps.length} • Teams: ${Object.keys(teams).length} • ${m.name||mid}`;
+ try{
+ table.innerHTML=ps.length?ps.map((x)=>{
+  try{
+   const p=x.p,i=x.i,uid=p.userId||p.uid||p.id,u=cache.users?.[uid]||{},team=gzaResultTeamKey(p,i,m);
+   const ign=p.inGameName||p.ign||p.userName||u.ign||u.inGameName||u.name||"-";
+   const gid=p.inGameUid||p.uidGame||p.gameUid||u.uidGame||u.gameId||"-";
+   const existing=gzaResultValues().find(r=>String(r.matchId||r.match)===String(mid)&&String(r.userId||r.user)===String(uid));
+   const pos=existing?.position??p.position??p.pos??"";
+   const prize=existing?.prize??0;
+   const status=existing?.status||"pending";
+   return `<tr data-gza-player-row="${gzaAdminEsc(uid)}">
+    <td>${gzaAdminEsc(team)}</td>
+    <td><input class="input gza-result-pos" data-uid="${gzaAdminEsc(uid)}" data-team="${gzaAdminEsc(team)}" type="number" min="1" placeholder="${mode==="Solo"?"Position":"Team Position"}" value="${gzaAdminEsc(pos)}" style="min-width:110px;margin:0"></td>
+    <td><input class="input gza-result-ign" data-uid="${gzaAdminEsc(uid)}" type="text" placeholder="In Game Name" value="${gzaAdminEsc(ign==="-"?"":ign)}" style="min-width:130px;margin:0"></td>
+    <td><input class="input gza-result-uid" data-uid="${gzaAdminEsc(uid)}" type="text" placeholder="In Game UID" value="${gzaAdminEsc(gid==="-"?"":gid)}" style="min-width:130px;margin:0"></td>
+    <td><input class="input gza-result-prize" data-uid="${gzaAdminEsc(uid)}" type="number" min="0" step="1" placeholder="${mode==="Solo"?"Winning Coins":"Coins / Player"}" value="${gzaAdminEsc(prize)}" style="min-width:120px;margin:0"></td>
+    <td class="gza-result-status" data-uid="${gzaAdminEsc(uid)}">${gzaAdminEsc(status)}</td>
+   </tr>`;
+  }catch(rowErr){
+   console.error("GZA result row failed for player",x?.p,rowErr);
+   return `<tr><td colspan="6" class="empty">⚠ Error loading a player row — check console (F12)</td></tr>`;
+  }
+ }).join(""):'<tr><td colspan="6" class="empty">No joined players.</td></tr>';
+ }catch(tableErr){
+  console.error("GZA gzaSyncResultPlayers failed",tableErr);
+  table.innerHTML='<tr><td colspan="6" class="empty">⚠ Failed to load joined players — check console (F12) and re-select the match.</td></tr>';
+ }
+
+ document.querySelectorAll(".gza-result-pos").forEach(inp=>{
+   inp.addEventListener("change",()=>{
+     if(mode==="Solo")return;
+     const team=inp.dataset.team,val=inp.value;
+     document.querySelectorAll(`.gza-result-pos[data-team="${CSS.escape(team)}"]`).forEach(x=>{x.value=val});
+   });
+ });
+}
+$("resultCategory")?.addEventListener("change",()=>{
+ gzaFillMatchCategories(["resultCategory"]);
+ gzaFillMatches("resultCategory","resultMatch");
+ setTimeout(gzaSyncResultPlayers,0);
+});
+$("resultMatch")?.addEventListener("change",gzaSyncResultPlayers);
+$("endCategory")?.addEventListener("change",()=>{
+ gzaFillMatchCategories(["endCategory"]);
+ gzaFillMatches("endCategory","endMatchSelect");
+});
+/* FIX: roomCategory select had no change listener, so its match dropdown never filtered by category. */
+$("roomCategory")?.addEventListener("change",()=>{
+ gzaFillMatchCategories(["roomCategory","resultCategory","endCategory"]);
+  gzaFillMatches("roomCategory","roomMatch");
+ gzaSyncRoomFields();
+});
+$("roomMatch")?.addEventListener("change",gzaSyncRoomFields);
+
+async function gzaSaveResultFinal(){
+ const mid=$("resultMatch")?.value;
+ if(!mid){toast("Category aur Match select karo");return}
+ const m=cache.matches?.[mid]||{},ps=gzaResultJoinedPlayers(),mode=gzaResultMode(m);
+ if(!ps.length){toast("No joined players found.");return}
+ const existing=gzaResultValues().filter(r=>String(r.matchId||r.match)===String(mid));
+ const rows=[],seenUsers=new Set(),teamPositions={};
+ for(let i=0;i<ps.length;i++){
+   const p=ps[i],uid=String(p.userId||p.uid||p.id);
+   if(seenUsers.has(uid))continue;
+   seenUsers.add(uid);
+   const posEl=document.querySelector(`.gza-result-pos[data-uid="${CSS.escape(uid)}"]`);
+   const prizeEl=document.querySelector(`.gza-result-prize[data-uid="${CSS.escape(uid)}"]`);
+   const ignEl=document.querySelector(`.gza-result-ign[data-uid="${CSS.escape(uid)}"]`);
+   const uidEl=document.querySelector(`.gza-result-uid[data-uid="${CSS.escape(uid)}"]`);
+   const pos=Number(posEl?.value||0),prize=Number(prizeEl?.value||0),team=gzaResultTeamKey(p,i,m);
+   const ignEdited=(ignEl?.value||"").trim(),uidEdited=(uidEl?.value||"").trim();
+   if(!Number.isInteger(pos)||pos<1){toast(`Position required for ${uid}`);return}
+   if(mode==="Solo"){
+     if(rows.some(r=>r.pos===pos)){toast(`Duplicate position ${pos}.`);return}
+   }else{
+     if(teamPositions[team]!==undefined&&teamPositions[team]!==pos){toast(`Team ${team} members must have the same position.`);return}
+     teamPositions[team]=pos;
+   }
+   if(!Number.isFinite(prize)||prize<0){toast(`Invalid winning coins for ${uid}`);return}
+   rows.push({uid,pos,prize,p,team,ignEdited,uidEdited});
+ }
+ try{
+   for(const row of rows){
+     const old=existing.find(r=>String(r.userId||r.user)===row.uid);
+     const u=cache.users?.[row.uid]||{};
+     const ign=row.ignEdited||row.p.inGameName||row.p.ign||row.p.userName||u.ign||u.inGameName||u.name||"";
+     const gid=row.uidEdited||row.p.inGameUid||row.p.uidGame||row.p.gameUid||u.uidGame||u.gameId||"";
+     const data={
+       matchId:mid,match:mid,matchName:m.name||"",category:gzaMatchCategory(m),
+       tournamentId:m.tournamentId||"",tournamentName:m.tournamentName||gzaTournamentName(m.tournamentId||""),
+       matchType:mode,playersPerTeam:gzaResultPlayersPerTeam(m),teamNo:row.team,
+       userId:row.uid,user:row.uid,userName:u.name||row.p.userName||"",
+       inGameName:ign,inGameUid:gid,position:row.pos,prize:row.prize,
+       status:old?.status==="published"?"published":"pending",updatedAt:Date.now(),updatedBy:currentUser?.uid||""
+     };
+     if(old)await update(ref(db,"results/"+old.id),data);
+     else await push(ref(db,"results"),{...data,createdAt:Date.now(),submittedBy:currentUser?.uid||""});
+   }
+   toast("All results saved.");
+   gzaSyncResultPlayers();
+ }catch(e){console.error(e);toast(e.message||"Result save failed")}
+}
+$("saveResultBtn")?.addEventListener("click",gzaSaveResultFinal);
+
+async function gzaEndMatchFinal(){
+ const mid=$("endMatchSelect")?.value;
+ if(!mid){toast("Category aur Match select karo");return}
+ const m=cache.matches?.[mid]||{};
+ const ps=gzaJoined(m.tournamentId||"").filter(p=>!p.status||String(p.status).toLowerCase()==="joined");
+ const rs=gzaResultValues().filter(r=>String(r.matchId||r.match)===String(mid));
+ if(!ps.length){toast("No joined players found.");return}
+ if(rs.length<ps.length){toast(`Result pending: ${rs.length}/${ps.length} players completed.`);return}
+ if(m.coinsDistributed===true || rs.some(r=>String(r.status||"")==="paid")){
+   toast("Virtual reward coins for this match have already been distributed.");
+   return;
+ }
+ if(!confirm("End match, publish result, and automatically add the entered Winning Coins to eligible player wallets?"))return;
+
+ try{
+   /* Match-level one-time guard. */
+   const guard=await runTransaction(ref(db,"matches/"+mid+"/coinsDistributed"),v=>{
+     if(v===true)return;
+     return true;
+   });
+   if(!guard.committed){
+     toast("Virtual reward coins were already distributed.");
+     return;
+   }
+
+   const now=Date.now();
+   const rewardRows=rs.filter(r=>Number(r.prize||0)>0);
+   for(const r of rewardRows){
+     const uid=String(r.userId||r.user||"").trim();
+     const amount=Number(r.prize||0);
+     if(!uid||!Number.isFinite(amount)||amount<=0)continue;
+
+     /* Atomic wallet increment for virtual reward coins only. */
+     await runTransaction(ref(db,"users/"+uid+"/coins"),v=>Number(v||0)+amount);
+
+     await update(ref(db,"results/"+r.id),{
+       status:"paid",
+       rewardCoinsAdded:amount,
+       coinsAwardedAt:now,
+       awardedBy:currentUser?.uid||""
+     });
+
+     await push(ref(db,"coinTransactions"),{
+       userId:uid,
+       matchId:mid,
+       tournamentId:m.tournamentId||"",
+       type:"match_reward",
+       coins:amount,
+       position:Number(r.position||0),
+       nonCash:true,
+       createdAt:now,
+       createdBy:currentUser?.uid||""
+     });
+   }
+
+   /* Zero-reward rows are still published, but no wallet change is made. */
+   await Promise.all(rs.map(r=>update(ref(db,"results/"+r.id),{
+     status:"published",
+     publishedAt:now,
+     publishedBy:currentUser?.uid||""
+   })));
+
+   await update(ref(db,"matches/"+mid),{
+     ended:true,status:"Ended",live:false,
+     resultPublished:true,resultPublishedAt:now,
+     endedAt:now,endedBy:currentUser?.uid||"",
+     coinsDistributed:true,
+     rewardDistributionType:"virtual_reward_coins"
+   });
+
+   if(m.tournamentId)await update(ref(db,"tournaments/"+m.tournamentId),{
+     status:"Completed",completedAt:now
+   });
+
+   toast(`Match ended. ${rewardRows.length} eligible reward(s) added to virtual wallets.`);
+   gzaSyncResultPlayers();
+   gzaRenderResultTableFinal();
+   gzaRenderResults?.();
+ }catch(e){
+   console.error(e);
+   toast(e.message||"Automatic virtual reward distribution failed");
+ }
+}
+$("endMatchBtn")?.addEventListener("click",gzaEndMatchFinal);
+
+async function gzaEditResultFinal(id){
+ const r=cache.results?.[id]||{};
+ if(String(r.status||"")==="published"||String(r.status||"")==="paid"){toast("Published result cannot be edited.");return}
+ const pos=prompt("Player Position:",r.position??"");if(pos===null)return;
+ const prize=prompt("Winning Coins:",r.prize??0);if(prize===null)return;
+ const nPos=Number(pos),nPrize=Number(prize);
+ if(!Number.isInteger(nPos)||nPos<1||!Number.isFinite(nPrize)||nPrize<0){toast("Invalid result values");return}
+ await update(ref(db,"results/"+id),{position:nPos,prize:nPrize,updatedAt:Date.now(),updatedBy:currentUser?.uid||""});
+ toast("Result updated");
+}
+function gzaRenderResultTableFinal(){
+ const table=$("resultTable");if(!table)return;
+ const arr=gzaResultValues().sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+ table.innerHTML=arr.length?arr.map(r=>`<tr>
+ <td>${gzaAdminEsc(r.matchName||r.matchId||r.match||"-")}<br><small>${gzaAdminEsc(r.category||"-")}</small></td>
+ <td>${gzaAdminEsc(r.inGameName||r.userName||r.user||r.userId||"-")}<br><small>${gzaAdminEsc(r.inGameUid||r.userId||r.user||"")}</small></td>
+ <td>${gzaAdminEsc(r.position||"-")}</td><td>${gzaAdminEsc(r.prize||0)}</td>
+ <td>${gzaAdminEsc(r.status||"pending")}</td>
+ <td>${["published","paid"].includes(String(r.status||""))?"✅ Published":`<button class="btn blue" data-gza-editres="${gzaAdminEsc(r.id)}">Edit</button> <button class="btn danger" data-gza-delres="${gzaAdminEsc(r.id)}">Delete</button>`}</td>
+ </tr>`).join(""):`<tr><td colspan="6" class="empty">No results yet.</td></tr>`;
+ document.querySelectorAll("[data-gza-editres]").forEach(b=>b.onclick=()=>gzaEditResultFinal(b.dataset.gzaEditres));
+ document.querySelectorAll("[data-gza-delres]").forEach(b=>b.onclick=()=>gzaAdminDelete("results",b.dataset.gzaDelres,"this result"));
+}
+
+function gzaRefreshTournamentTypeUI(){
+ const t=$("tMatchType"),p=$("tPlayersPerTeam");
+ if(t&&p)p.value=t.value==="Squad"?4:t.value==="Duo"?2:1;
+}
+function gzaRefreshMatchResultUI(){
+ gzaAllTournamentRefreshCategories();
+ gzaFillCategories(["matchCategory"]);
+  gzaFillMatchCategories(["roomCategory","resultCategory","endCategory"]);
+ gzaFillTournamentsForCreate();
+ gzaFillMatches("roomCategory","roomMatch");
+ gzaFillMatches("resultCategory","resultMatch");
+ gzaFillMatches("endCategory","endMatchSelect");
+ gzaSyncRoomFields();gzaSyncResultPlayers();
+ gzaMRenderMatches();gzaRenderResultTableFinal();
+}
+const _gzaOldRenderAll=renderAll;
+renderAll=function(){_gzaOldRenderAll();setTimeout(gzaRefreshMatchResultUI,0)};
+setTimeout(gzaRefreshMatchResultUI,800);
+
+/* Main Staff STAFF001-STAFF005 = full Admin Panel access (every feature above).
+   Local Staff STAFF006-STAFF050 = restricted operational access only. */
+const GZA_MAIN_STAFF_IDS=new Set(["staff001","staff002","staff003","staff004","staff005"]);
+function gzaStaffId(){return String(currentStaff?.id||currentStaff?.staffId||"").trim().toLowerCase();}
+function gzaIsMain(){return GZA_MAIN_STAFF_IDS.has(gzaStaffId());}
+function gzaApplyRole(){
+ const main=gzaIsMain();
+ document.querySelectorAll(".nav[data-section]").forEach(n=>{
+  if(main){n.classList.remove("gza-local-hide");return;}
+  const t=(n.textContent||"").toLowerCase();
+  const allowed=["dashboard","match management","results & winners"];
+  n.classList.toggle("gza-local-hide",!allowed.some(x=>t.includes(x)));
+ });
+ const title=document.querySelector(".top-title");if(title)title.textContent=main?"Tournament Admin Panel — Main Staff":"Tournament Staff Panel — Local Staff";
+}
+setTimeout(gzaApplyRole,300);setTimeout(gzaApplyRole,1200);
+
+function gzaOpenWalletEdit(id){
+ const u=cache.users?.[id];
+ if(!u){toast("User data not found");return}
+ $("gzaWalletUid").value=id;
+ $("gzaWalletName").value=u.name||u.displayName||"";
+ $("gzaWalletIgn").value=u.ign||u.inGameName||"";
+ $("gzaWalletGameUid").value=u.uidGame||u.gameId||u.inGameUid||"";
+ $("gzaWalletCoins").value=Number(u.coins||0);
+ $("gzaWalletModal").style.display="flex";
+}
+function gzaCloseWalletEdit(){
+ $("gzaWalletModal").style.display="none";
+}
+$("gzaWalletCancel").onclick=gzaCloseWalletEdit;
+$("gzaWalletModal").addEventListener("click",e=>{
+ if(e.target.id==="gzaWalletModal")gzaCloseWalletEdit();
+});
+$("gzaWalletSave").onclick=async()=>{
+ const id=$("gzaWalletUid").value;
+ const name=$("gzaWalletName").value.trim();
+ const ign=$("gzaWalletIgn").value.trim();
+ const gameUid=$("gzaWalletGameUid").value.trim();
+ const coins=Number($("gzaWalletCoins").value);
+ if(!id){toast("User not selected");return}
+ if(!Number.isFinite(coins)||coins<0||!Number.isInteger(coins)){toast("Coins must be a whole number (0 or more)");return}
+ try{
+  await update(ref(db,"users/"+id),{
+   name,displayName:name,
+   ign,inGameName:ign,
+   uidGame:gameUid,gameId:gameUid,
+   coins:Math.floor(coins),
+   updatedAt:Date.now(),
+   updatedBy:currentUser?.uid||""
+  });
+  gzaCloseWalletEdit();
+  toast("User wallet updated successfully");
+ }catch(e){
+  console.error(e);
+  toast(e.message||"User wallet update failed");
+ }
+};
+
+
+
+/* =========================================================
+   FINAL INTEGRITY PATCH
+   - removes accidental duplicate click handlers
+   - makes Room ID/Password update actually work
+   - keeps Category -> Match -> Joiners chain in sync
+   - keeps Results table as the single result editor
+   - prevents old hidden result/create-match handlers from firing
+   ========================================================= */
+(function gzaFinalIntegrityPatch(){
+  const cloneButton=(id)=>{
+    const old=document.getElementById(id);
+    if(!old)return null;
+    const fresh=old.cloneNode(true);
+    old.replaceWith(fresh);
+    return fresh;
+  };
+
+  /* Room update: one authoritative handler. */
+  const roomBtn=cloneButton("updateRoomBtn");
+  if(roomBtn){
+    roomBtn.addEventListener("click",async()=>{
+      const mid=document.getElementById("roomMatch")?.value||"";
+      const room=document.getElementById("roomIdUpdate")?.value.trim()||"";
+      const password=document.getElementById("roomPasswordUpdate")?.value.trim()||"";
+      if(!mid){toast("Category aur Match select karo");return}
+      if(!room||!password){toast("Room ID aur Password dono required hain");return}
+      const m=cache.matches?.[mid];
+      if(!m){toast("Match data not found");return}
+      try{
+        roomBtn.disabled=true;
+        await update(ref(db,"matches/"+mid),{
+          room,
+          password,
+          roomVisible:true,
+          updatedAt:Date.now(),
+          updatedBy:currentUser?.uid||""
+        });
+        toast("Room ID & Password updated. Joined users can see them.");
+        gzaSyncRoomFields();
+        gzaSendCustomNotifToMatchJoiners(mid,"Room ID & Password Updated","Room ID: "+room+" | Password: "+password,"room_update");
+      }catch(e){
+        console.error(e);
+        toast(e.message||"Room update failed");
+      }finally{roomBtn.disabled=false;}
+    });
+  }
+
+  /* Generic: notify only the users who joined this specific match's
+     tournament — used both for the automatic room-update notice above
+     and the manual custom-notification button below. Never blocks the
+     caller's own save/flow. */
+  async function gzaSendCustomNotifToMatchJoiners(mid,title,body,notifType){
+    try{
+      const m=cache.matches?.[mid]||{};
+      const tid=m.tournamentId||"";
+      if(!tid)return 0;
+      const joiners=(typeof gzaMParticipants==="function"?gzaMParticipants(tid):[])
+        .filter(p=>!p.status||String(p.status).toLowerCase()==="joined");
+      if(!joiners.length)return 0;
+      let sent=0,failed=0;
+      for(const p of joiners){
+        const uid=p.userId||p.uid||p.id;
+        const u=cache.users?.[uid]||{};
+        if(u.fcmToken){
+          try{
+            await backendPost("/send-notification",{token:u.fcmToken,title,body,data:{tournamentId:String(tid),matchId:String(mid),type:notifType||"custom"}});
+            sent++;
+          }catch(e){failed++;}
+        }
+      }
+      try{
+        await push(ref(db,"notifications"),{
+          tournamentId:tid,matchId:mid,title,body,type:notifType||"custom",
+          totalJoiners:joiners.length,sent,failed,
+          sentBy:currentUser?.uid||"",createdAt:Date.now()
+        });
+      }catch(e){}
+      toast("Notification sent to "+sent+" joiner(s)"+(failed?(", "+failed+" failed"):""));
+      return sent;
+    }catch(e){console.error("Match joiner notify failed",e);return 0}
+  }
+
+  /* Manual custom notification — same match selection as Room ID/Password,
+     but with staff's own title+message, sent only to that match's joiners. */
+  const roomCustomNotifBtn=cloneButton("roomCustomNotifBtn");
+  if(roomCustomNotifBtn){
+    roomCustomNotifBtn.addEventListener("click",async()=>{
+      const mid=document.getElementById("roomMatch")?.value||"";
+      const title=document.getElementById("roomCustomNotifTitle")?.value.trim()||"";
+      const body=document.getElementById("roomCustomNotifBody")?.value.trim()||"";
+      if(!mid){toast("Pehle upar se Category aur Match select karo");return}
+      if(!title||!body){toast("Notification title aur message dono required hain");return}
+      roomCustomNotifBtn.disabled=true;
+      try{
+        const sent=await gzaSendCustomNotifToMatchJoiners(mid,title,body,"custom_match");
+        if(sent){
+          document.getElementById("roomCustomNotifTitle").value="";
+          document.getElementById("roomCustomNotifBody").value="";
+        }
+      }finally{roomCustomNotifBtn.disabled=false;}
+    });
+  }
+  }
+
+  /* Results: remove every previously attached listener and bind exactly once. */
+  const resultBtn=cloneButton("saveResultBtn");
+  if(resultBtn) resultBtn.addEventListener("click",gzaSaveResultFinal);
+
+  const endBtn=cloneButton("endMatchBtn");
+  if(endBtn) endBtn.addEventListener("click",gzaEndMatchFinal);
+
+  /* Ensure result selectors always refresh their player table. */
+  const resultCat=document.getElementById("resultCategory");
+  if(resultCat){
+    const fresh=resultCat.cloneNode(true);
+    resultCat.replaceWith(fresh);
+    fresh.addEventListener("change",()=>{
+      gzaFillMatches("resultCategory","resultMatch");
+      setTimeout(gzaSyncResultPlayers,0);
+    });
+  }
+  const roomCat=document.getElementById("roomCategory");
+  if(roomCat){
+    const fresh=roomCat.cloneNode(true);
+    roomCat.replaceWith(fresh);
+    fresh.addEventListener("change",()=>{gzaFillMatches("roomCategory","roomMatch");gzaSyncRoomFields();});
+  }
+  const roomMatch=document.getElementById("roomMatch");
+  if(roomMatch){
+    const fresh=roomMatch.cloneNode(true);
+    roomMatch.replaceWith(fresh);
+    fresh.addEventListener("change",gzaSyncRoomFields);
+  }
+
+  const resultMatch=document.getElementById("resultMatch");
+  if(resultMatch){
+    const fresh=resultMatch.cloneNode(true);
+    resultMatch.replaceWith(fresh);
+    fresh.addEventListener("change",gzaSyncResultPlayers);
+  }
+
+  const allCat=document.getElementById("allTournamentCategory");
+  if(allCat){
+    const fresh=allCat.cloneNode(true);
+    allCat.replaceWith(fresh);
+    fresh.addEventListener("change",gzaAllTournamentFillMatches);
+  }
+  const allMatch=document.getElementById("allTournamentMatch");
+  if(allMatch){
+    const fresh=allMatch.cloneNode(true);
+    allMatch.replaceWith(fresh);
+    fresh.addEventListener("change",gzaAllTournamentRenderPlayers);
+  }
+
+  /* Re-fill dependent selects after Firebase data arrives. */
+  setTimeout(()=>{
+    try{
+      gzaRefreshMatchResultUI();
+      gzaAllTournamentRefreshCategories();
+      gzaFillMatches("roomCategory","roomMatch");
+      gzaFillMatches("resultCategory","resultMatch");
+      gzaFillMatches("endCategory","endMatchSelect");
+      gzaSyncRoomFields();
+      gzaSyncResultPlayers();
+      gzaAllTournamentRenderPlayers();
+    }catch(e){console.error("GZA final refresh",e)}
+  },300);
+})();
+
+
+</script>
+
+<div id="gzaWalletModal">
+  <div class="gza-wallet-box">
+    <h3>👤 Edit User / Wallet</h3>
+    <input type="hidden" id="gzaWalletUid">
+    <label>User Name</label>
+    <input class="input" id="gzaWalletName" placeholder="User Name">
+    <label>In Game Name</label>
+    <input class="input" id="gzaWalletIgn" placeholder="In Game Name">
+    <label>In Game UID</label>
+    <input class="input" id="gzaWalletGameUid" placeholder="In Game UID">
+    <label>Virtual GEN Z ARENA Coins</label>
+    <input class="input" id="gzaWalletCoins" type="number" min="0" step="1" placeholder="Coins">
+    <div class="gza-wallet-actions">
+      <button type="button" class="btn light" id="gzaWalletCancel">Cancel</button>
+      <button type="button" class="btn success" id="gzaWalletSave">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
